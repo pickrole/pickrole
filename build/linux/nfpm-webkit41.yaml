@@ -1,0 +1,41 @@
+# RPM (Fedora) and .deb (Ubuntu 22.04+, Debian 12+) for the binary built in the
+# ubuntu:22.04 container, linked against webkit2gtk-4.1 (docs/adr/0019). Used
+# by scripts/package-linux.sh webkit41.
+name: pickrole
+arch: amd64
+platform: linux
+version: ${VERSION}
+release: 1
+section: utils
+priority: optional
+maintainer: PickRole <https://github.com/pickrole/pickrole>
+description: |
+  Sign in to AWS IAM Identity Center, pick an account and role, and get
+  working credentials in every terminal. Also sets up the CodeArtifact
+  token for Maven.
+vendor: PickRole
+homepage: https://github.com/pickrole/pickrole
+license: MIT
+
+overrides:
+  rpm:
+    depends:
+      - gtk3
+      - webkit2gtk4.1
+  deb:
+    depends:
+      # Ubuntu 24.04 renamed libgtk-3-0 to libgtk-3-0t64 (64-bit time_t).
+      - libgtk-3-0t64 | libgtk-3-0
+      - libwebkit2gtk-4.1-0
+
+contents:
+  - src: build/bin/pickrole
+    dst: /usr/bin/pickrole
+    file_info:
+      mode: 0755
+  - src: build/linux/pickrole.desktop
+    dst: /usr/share/applications/pickrole.desktop
+  - src: build/appicon.svg
+    dst: /usr/share/icons/hicolor/scalable/apps/pickrole.svg
+  - src: LICENSE
+    dst: /usr/share/licenses/pickrole/LICENSE

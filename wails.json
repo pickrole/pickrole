@@ -1,0 +1,19 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "PickRole",
+  "outputfilename": "pickrole",
+  "frontend:install": "npm ci",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Eder Ribeiro"
+  },
+  "info": {
+    "companyName": "PickRole",
+    "productName": "PickRole",
+    "productVersion": "0.1.0",
+    "copyright": "Copyright (c) 2026 pickrole. MIT License",
+    "comments": "Sign in to AWS IAM Identity Center and get credentials in every terminal"
+  }
+}

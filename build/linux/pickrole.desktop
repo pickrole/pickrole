@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=PickRole
+GenericName=AWS SSO login
+Comment=Sign in to AWS IAM Identity Center and pick an account and role
+Comment[pt_BR]=Entre no AWS IAM Identity Center e escolha conta e perfil
+Exec=/usr/bin/pickrole
+Icon=pickrole
+Terminal=false
+Categories=Development;Utility;
+Keywords=aws;sso;codeartifact;maven;credentials;
+StartupWMClass=pickrole

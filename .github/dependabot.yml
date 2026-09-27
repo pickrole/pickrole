@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # Actions are pinned to commits (see the workflows); this keeps the pins current,
+  # in one pull request so the workflows move together.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
+
+  # Go modules. The Go toolchain itself (go.mod `toolchain`, scripts/setup-el8.sh)
+  # is updated by hand; govulncheck in CI flags when it's due (docs/adr/0021).
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      go-modules:
+        patterns: ['*']

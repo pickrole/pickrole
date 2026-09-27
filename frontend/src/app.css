@@ -1,0 +1,204 @@
+@import 'tailwindcss';
+
+/*
+ * Colour tokens. Every colour in the UI comes from here, so the light and
+ * dark themes are just two sets of values.
+ *
+ * Meaning is fixed: accent = primary action, ok = active/success,
+ * warn = expiring, prod = production. Nothing else uses those hues.
+ * glow is the accent's deep tone, only for the splash backdrop.
+ */
+:root {
+  --bg: #131418;
+  --surface: #1b1d22;
+  --surface-2: #24272d;
+  --line: #2d3037;
+  --line-strong: #3a3d45;
+  --fg: #ecebe7;
+  --muted: #a4a3a0;
+  --faint: #8f8e8a;
+
+  --accent: #34c08f;
+  --accent-ink: #03241a;
+  --accent-soft: #15392d;
+  --accent-soft-fg: #93e3c5;
+  --accent-line: #2a6b53;
+  --glow: #154837;
+
+  --ok: #a3cf62;
+  --ok-soft: #2b3a1b;
+  --ok-card: #1f2a15;
+  --ok-line: #4a6128;
+  --ok-fg: #bfe08e;
+
+  --warn: #f0a848;
+  --warn-soft: #3a3020;
+  --warn-line: #6a5329;
+  --warn-fg: #f6c27e;
+  --warn-ink: #2a1c06;
+
+  --prod: #f07a6a;
+  --prod-soft: #3d2220;
+  --prod-card: #24161a;
+  --prod-fg: #ffa79a;
+  --prod-ink: #2a0e0a;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-2: #efeeea;
+    --line: #e2e0da;
+    --line-strong: #cfcdc6;
+    --fg: #1a1b1e;
+    --muted: #5e5d59;
+    --faint: #72716c;
+    --accent: #0d7a58;
+    --accent-ink: #ffffff;
+    --accent-soft: #dff3ea;
+    --accent-soft-fg: #0b5c43;
+    --accent-line: #8fd1b7;
+    --glow: #cfe9dd;
+    --ok: #5a8a16;
+    --ok-soft: #e8f2d6;
+    --ok-card: #f3f8ea;
+    --ok-line: #bcd894;
+    --ok-fg: #466b10;
+    --warn: #b8741a;
+    --warn-soft: #fbefd9;
+    --warn-line: #e8c98d;
+    --warn-fg: #7a4b0c;
+    --warn-ink: #ffffff;
+    --prod: #c4412f;
+    --prod-soft: #fbe3df;
+    --prod-card: #fdf2f0;
+    --prod-fg: #9a2e20;
+    --prod-ink: #ffffff;
+    color-scheme: light;
+  }
+}
+
+:root[data-theme='light'] {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-2: #efeeea;
+  --line: #e2e0da;
+  --line-strong: #cfcdc6;
+  --fg: #1a1b1e;
+  --muted: #5e5d59;
+  --faint: #72716c;
+  --accent: #0d7a58;
+  --accent-ink: #ffffff;
+  --accent-soft: #dff3ea;
+  --accent-soft-fg: #0b5c43;
+  --accent-line: #8fd1b7;
+  --glow: #cfe9dd;
+  --ok: #5a8a16;
+  --ok-soft: #e8f2d6;
+  --ok-card: #f3f8ea;
+  --ok-line: #bcd894;
+  --ok-fg: #466b10;
+  --warn: #b8741a;
+  --warn-soft: #fbefd9;
+  --warn-line: #e8c98d;
+  --warn-fg: #7a4b0c;
+  --warn-ink: #ffffff;
+  --prod: #c4412f;
+  --prod-soft: #fbe3df;
+  --prod-card: #fdf2f0;
+  --prod-fg: #9a2e20;
+  --prod-ink: #ffffff;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-fg: var(--accent-soft-fg);
+  --color-accent-line: var(--accent-line);
+  --color-glow: var(--glow);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-ok-card: var(--ok-card);
+  --color-ok-line: var(--ok-line);
+  --color-ok-fg: var(--ok-fg);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-line: var(--warn-line);
+  --color-warn-fg: var(--warn-fg);
+  --color-warn-ink: var(--warn-ink);
+  --color-prod: var(--prod);
+  --color-prod-soft: var(--prod-soft);
+  --color-prod-card: var(--prod-card);
+  --color-prod-fg: var(--prod-fg);
+  --color-prod-ink: var(--prod-ink);
+
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-display: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+input,
+select,
+textarea {
+  user-select: text;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* The accent's deep glow behind the brand (opening screen and About). */
+.brand-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 55% at 22% 12%, var(--glow), transparent 72%),
+    radial-gradient(50% 40% at 80% 95%, color-mix(in srgb, var(--glow) 45%, transparent), transparent 70%);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
