@@ -61,11 +61,16 @@
     <span class="rounded-[5px] border border-line px-[5px] py-[2px] font-mono text-[10.5px]">Ctrl K</span>
   </label>
 
-  <div class="-mr-1 flex min-h-0 grow flex-col gap-3 overflow-y-auto pr-1">
-    {#snippet group(title: string, list: Account[])}
+  <div class="-mr-1 flex min-h-0 grow flex-col gap-4 overflow-y-auto pr-1">
+    {#snippet group(title: string, list: Account[], favorite = false)}
       {#if list.length > 0}
         <div class="flex flex-col gap-0.5">
-          <span class="px-2.5 pb-1 text-[11px] font-semibold tracking-[0.08em] text-faint uppercase">{title}</span>
+          <div class="flex items-center gap-2 px-2.5 pb-1.5">
+            {#if favorite}<span class="text-accent"><Icon name="star" size={12} /></span>{/if}
+            <span class="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{title}</span>
+            <span class="rounded-full bg-surface-2 px-1.5 font-mono text-[10.5px] leading-[18px] text-muted">{list.length}</span>
+            <span class="h-px grow bg-line" aria-hidden="true"></span>
+          </div>
           {#each list as a (a.id)}
             <button
               class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-left {a.id === selectedId
@@ -94,7 +99,7 @@
       {/if}
     {/snippet}
 
-    {@render group(t('accounts.favorites'), favorites)}
+    {@render group(t('accounts.favorites'), favorites, true)}
     {@render group(favorites.length > 0 ? t('accounts.all') : t('accounts.accounts'), others)}
 
     {#if filtered.length === 0}
