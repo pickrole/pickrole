@@ -82,6 +82,8 @@ export interface Account {
   roles: string[] | null
   production: boolean
   favorite: boolean
+  /** Roles whose names say they only read; in production the others ask for confirmation. */
+  readOnlyRoles: string[] | null
 }
 
 export interface Recent {

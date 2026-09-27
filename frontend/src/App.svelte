@@ -109,7 +109,7 @@
     selectedId = r.accountId
     const account = overview?.accounts.find((a) => a.id === r.accountId)
     // Production write roles still go through the confirmation in the panel.
-    if (account?.production && !/read|view|audit|billing/i.test(r.role)) return
+    if (account?.production && !account.readOnlyRoles?.includes(r.role)) return
     load(r.accountId, r.role)
   }
 

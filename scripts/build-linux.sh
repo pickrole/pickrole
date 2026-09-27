@@ -15,6 +15,13 @@ VERSION="${VERSION:-dev}"
 WAILS_VERSION="${WAILS_VERSION:-v2.16.0}"
 WAILS_TAGS="${WAILS_TAGS:-}"
 
+# The version goes into -ldflags: letters, digits, dots, hyphens and
+# underscores only (0.2.0, 0.2.0-beta.1, a commit hash, dev).
+if [[ ! "${VERSION}" =~ ^[0-9A-Za-z._-]+$ ]]; then
+  echo "invalid VERSION: ${VERSION}" >&2
+  exit 1
+fi
+
 cd "$(dirname "$0")/.."
 
 if ! command -v wails >/dev/null 2>&1; then

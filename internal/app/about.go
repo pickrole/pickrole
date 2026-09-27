@@ -45,7 +45,7 @@ func (b Build) withVCS() Build {
 		b.Commit = b.Commit[:7]
 	}
 	if b.Commit != "" && modified {
-		b.Commit += "-modificado"
+		b.Commit += "-modified"
 	}
 	return b
 }

@@ -10,6 +10,15 @@ updates:
       actions:
         patterns: ['*']
 
+  # Frontend packages (package-lock.json).
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: monthly
+    groups:
+      npm:
+        patterns: ['*']
+
   # Go modules. The Go toolchain itself (go.mod `toolchain`, scripts/setup-el8.sh)
   # is updated by hand; govulncheck in CI flags when it's due (docs/adr/0021).
   - package-ecosystem: gomod
