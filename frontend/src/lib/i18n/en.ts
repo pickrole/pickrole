@@ -117,6 +117,8 @@ export const en = {
   'settings.startUrl': 'Start URL',
   'settings.startUrlPlaceholder': 'https://[YOUR-ORG].awsapps.com/start',
   'settings.ssoRegion': 'SSO region',
+  'settings.copyStartUrl': 'Copy the start URL, for other apps that sign in to the same organization (Kiro, AWS Toolkit…)',
+  'settings.copyRegion': 'Copy the region',
   'settings.useCodeArtifact': 'Use CodeArtifact',
   'settings.codeArtifactIntro': 'Gets the token when you load a role with access and sets up your tools.',
   'settings.domain': 'Domain',

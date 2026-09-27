@@ -109,6 +109,8 @@ export const ptBR: Messages = {
   'settings.startUrl': 'URL de início',
   'settings.startUrlPlaceholder': 'https://[SUA-ORG].awsapps.com/start',
   'settings.ssoRegion': 'Região do SSO',
+  'settings.copyStartUrl': 'Copiar a URL de início, para outros apps que entram na mesma organização (Kiro, AWS Toolkit…)',
+  'settings.copyRegion': 'Copiar a região',
   'settings.useCodeArtifact': 'Usar CodeArtifact',
   'settings.codeArtifactIntro': 'Gera o token ao carregar um perfil com acesso e configura suas ferramentas.',
   'settings.domain': 'Domínio',

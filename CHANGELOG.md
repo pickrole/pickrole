@@ -13,6 +13,8 @@ follow [Semantic Versioning](https://semver.org/).
   from the repository URL. Configs with a single `serverId` keep working.
 - README: step-by-step command-line install (download, verify the checksum, install) and a ready-made prompt for
   installing with an AI coding assistant.
+- **Settings → SSO connection**: buttons to copy the start URL and the region, for other apps that sign in to the same
+  organization, such as Kiro or the AWS Toolkit.
 
 ## [0.2.0-beta.3] - 2026-09-27
 

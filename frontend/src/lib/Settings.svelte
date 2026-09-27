@@ -31,6 +31,7 @@
   let detectingMaven = $state(false)
   let mavenNotes = $state<string[]>([])
   let mavenError = $state('')
+  let copiedField = $state<'startUrl' | 'region' | null>(null)
 
   onMount(async () => {
     detected = await api.DetectSSO()
@@ -147,6 +148,18 @@
     }
   }
 
+  // For other apps that sign in to the same IAM Identity Center (Kiro, the
+  // AWS Toolkit…) and ask for the start URL and region.
+  async function copyField(field: 'startUrl' | 'region') {
+    try {
+      await api.CopyText(field === 'startUrl' ? cfg.sso.startUrl : cfg.sso.region)
+      copiedField = field
+      setTimeout(() => (copiedField = null), 1500)
+    } catch (e) {
+      error = errorMessage(e)
+    }
+  }
+
   function useDetected() {
     if (detected) cfg.sso = { ...detected }
   }
@@ -155,6 +168,18 @@
     'h-[38px] rounded-lg border border-line bg-surface px-3 font-mono text-[13px] text-fg outline-none focus:border-accent-line'
   const label = 'text-[13px] font-medium text-muted'
 </script>
+
+{#snippet copyButton(field: 'startUrl' | 'region', labelText: string, disabled: boolean)}
+  <button
+    class="flex size-[38px] shrink-0 items-center justify-center rounded-lg border border-line text-muted hover:text-fg"
+    aria-label={labelText}
+    title={labelText}
+    onclick={() => copyField(field)}
+    {disabled}
+  >
+    <Icon name={copiedField === field ? 'check' : 'copy'} size={15} />
+  </button>
+{/snippet}
 
 {#snippet toggle(checked: boolean, labelText: string, onToggle: () => void)}
   <button
@@ -219,16 +244,27 @@
         {t('settings.ssoIntro', { import: t('settings.import') })}
       </p>
       <div class="grid grid-cols-3 gap-4">
-        <label class="col-span-2 flex flex-col gap-1.5">
-          <span class={label}>{t('settings.startUrl')}</span>
-          <input class={input} bind:value={cfg.sso.startUrl} placeholder={t('settings.startUrlPlaceholder')} />
-        </label>
-        <label class="flex flex-col gap-1.5">
-          <span class={label}>{t('settings.ssoRegion')}</span>
-          <select class="{input} font-sans" bind:value={cfg.sso.region}>
-            {#each regions as r (r)}<option value={r}>{r}</option>{/each}
-          </select>
-        </label>
+        <div class="col-span-2 flex flex-col gap-1.5">
+          <label for="sso-start-url" class={label}>{t('settings.startUrl')}</label>
+          <div class="flex gap-2">
+            <input
+              id="sso-start-url"
+              class="{input} min-w-0 grow"
+              bind:value={cfg.sso.startUrl}
+              placeholder={t('settings.startUrlPlaceholder')}
+            />
+            {@render copyButton('startUrl', t('settings.copyStartUrl'), !cfg.sso.startUrl)}
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="sso-region" class={label}>{t('settings.ssoRegion')}</label>
+          <div class="flex gap-2">
+            <select id="sso-region" class="{input} min-w-0 grow font-sans" bind:value={cfg.sso.region}>
+              {#each regions as r (r)}<option value={r}>{r}</option>{/each}
+            </select>
+            {@render copyButton('region', t('settings.copyRegion'), !cfg.sso.region)}
+          </div>
+        </div>
       </div>
     {:else if tab === 'codeartifact'}
       <div class="flex items-center gap-4">
