@@ -69,18 +69,45 @@ Run anyway**. If your organization blocks unsigned executables, ask your IT team
 
 ### From the command line
 
-Download, verify and install in one go. Set `version` to the tag on the [releases page](https://github.com/pickrole/pickrole/releases)
-and `file` to your package from the table above:
+Find the version and the package for your distribution on the [releases page](https://github.com/pickrole/pickrole/releases)
+(the table above says which package is which), then:
 
-```bash
-version=v0.2.0-beta.4
-file=pickrole_${version#v}_el8_x86_64.rpm
+1. Download the package, replacing `<version>` and `<file>`:
 
-curl -LO "https://github.com/pickrole/pickrole/releases/download/${version}/${file}"
-curl -LO "https://github.com/pickrole/pickrole/releases/download/${version}/SHA256SUMS"
-sha256sum -c SHA256SUMS --ignore-missing
-sudo dnf install "./${file}"   # apt install for a .deb
-```
+   ```bash
+   curl -LO "https://github.com/pickrole/pickrole/releases/download/<version>/<file>"
+   ```
+
+   For example, for `v0.2.0-beta.4` on RHEL:
+
+   ```bash
+   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.4/pickrole_0.2.0-beta.4_el8_x86_64.rpm"
+   ```
+
+2. Download `SHA256SUMS` from the same release:
+
+   ```bash
+   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.4/SHA256SUMS"
+   ```
+
+3. Check that the file wasn't corrupted or tampered with. `SHA256SUMS` lists a fingerprint for every file in the
+   release; this recomputes the one for the file you have and compares it. `--ignore-missing` skips the other
+   packages you didn't download:
+
+   ```bash
+   sha256sum -c SHA256SUMS --ignore-missing
+   ```
+
+   It should print `<file>: OK`. If it says `FAILED` or nothing at all, delete the file and download it again — don't
+   install it.
+
+4. Install it:
+
+   ```bash
+   sudo dnf install ./pickrole_0.2.0-beta.4_el8_x86_64.rpm
+   ```
+
+   Use `apt install` instead of `dnf install` for a `.deb`.
 
 ### With an AI assistant
 
