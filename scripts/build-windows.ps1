@@ -15,6 +15,13 @@ param(
   [string]$WailsVersion = 'v2.16.0'
 )
 
+# The version goes into -ldflags: letters, digits, dots, hyphens and
+# underscores only (0.2.0, 0.2.0-beta.1, a commit hash, dev).
+if ($Version -notmatch '^[0-9A-Za-z._-]+$') {
+  Write-Error "invalid version: $Version"
+  exit 1
+}
+
 # Native tools log to stderr; exit codes are checked instead.
 $ErrorActionPreference = 'Continue'
 Set-Location (Split-Path -Parent $PSScriptRoot)

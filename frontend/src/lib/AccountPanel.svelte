@@ -35,8 +35,8 @@
   const isActive = (role: string) => active?.accountId === account.id && active.role === role
   const loadKey = (role: string) => `load:${account.id}/${role}`
   const isLoading = (role: string) => busy === loadKey(role)
-  // Read-only style roles do not need a confirmation, even in production.
-  const needsConfirm = (role: string) => account.production && !/read|view|audit|billing/i.test(role)
+  // Read-only roles (decided by the backend, on whole words) need no confirmation, even in production.
+  const needsConfirm = (role: string) => account.production && !account.readOnlyRoles?.includes(role)
   const showResult = $derived(result !== null && result.active.accountId === account.id)
 
   function load(role: string) {

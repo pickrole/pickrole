@@ -31,7 +31,8 @@ Switch accounts in PickRole and every terminal uses the new one on its next comm
 - Cached account list: the first start fetches everything from AWS, later starts are instant. One button refreshes it.
 - **Pick up where you left off**: your last profile is one Enter away.
 - Search (`Ctrl K`), favorites and recent profiles.
-- Production accounts stand out, and loading a write role in production asks for confirmation.
+- Production accounts stand out, and loading a role in production asks for confirmation unless its name says it only
+  reads (`ReadOnly`, `ViewOnly`, `SecurityAudit`, `Billing`).
 - Warning when the session is about to expire.
 - Shareable configuration: one person sets it up, exports a `.json`, and the rest of the team imports it.
 - Detects an existing `sso-session` in `~/.aws/config`.

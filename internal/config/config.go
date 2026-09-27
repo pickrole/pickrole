@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/pickrole/pickrole/internal/awsenv"
@@ -385,6 +386,46 @@ func resolveExisting(path string) (string, error) {
 }
 
 // IsProduction reports whether an account name looks like production.
+var (
+	camelLowerUpper = regexp.MustCompile(`([a-z0-9])([A-Z])`)
+	camelAcronym    = regexp.MustCompile(`([A-Z]+)([A-Z][a-z])`)
+	nonWord         = regexp.MustCompile(`[^a-z0-9]+`)
+)
+
+// roleWords splits a role name into lowercase words: "AWSReadOnlyAccess" is
+// aws, read, only, access; "data-read_write" is data, read, write.
+func roleWords(role string) []string {
+	s := camelLowerUpper.ReplaceAllString(role, "$1 $2")
+	s = camelAcronym.ReplaceAllString(s, "$1 $2")
+	return strings.Fields(nonWord.ReplaceAllString(strings.ToLower(s), " "))
+}
+
+// IsReadOnlyRole reports whether a role name says it only reads, so loading
+// it in production needs no confirmation. It compares whole words, never
+// substrings: ReadOnly, ViewOnly, SecurityAudit and Billing count, but
+// DataReadWrite or OverviewAdmin don't. A word that suggests writing
+// (write, admin, full, power…) always means the role needs confirmation.
+func IsReadOnlyRole(role string) bool {
+	words := roleWords(role)
+	for _, w := range words {
+		switch w {
+		case "write", "writer", "readwrite", "rw", "admin", "administrator", "full", "power", "poweruser",
+			"owner", "developer", "dev", "deploy", "deployer", "operator", "manage", "manager", "editor":
+			return false
+		}
+	}
+	has := func(seq ...string) bool {
+		for i := 0; i+len(seq) <= len(words); i++ {
+			if slices.Equal(words[i:i+len(seq)], seq) {
+				return true
+			}
+		}
+		return false
+	}
+	return has("read", "only") || has("readonly") || has("view", "only") || has("viewonly") ||
+		has("security", "audit") || has("securityaudit") || has("billing")
+}
+
 func (c Config) IsProduction(accountName string) bool {
 	re, err := regexp.Compile(c.Preferences.ProdPattern)
 	if err != nil {
