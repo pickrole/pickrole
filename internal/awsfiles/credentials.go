@@ -164,7 +164,8 @@ func ExportLines(creds Credentials, region string) (string, error) {
 }
 
 // shellQuote wraps s in single quotes for POSIX shells, where nothing inside
-// is interpreted; a single quote in s becomes '\''.
+// is interpreted. Each single quote in s closes the quotes, is escaped and
+// reopens them.
 func shellQuote(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }

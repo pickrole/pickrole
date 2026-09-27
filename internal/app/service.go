@@ -193,7 +193,7 @@ func (s *Service) overviewLocked() Overview {
 	}
 	for _, a := range s.snapshot.Accounts {
 		o.Accounts = append(o.Accounts, Account{
-			Account:    a,
+			Account:       a,
 			Production:    s.cfg.IsProduction(a.Name),
 			Favorite:      fav[a.ID],
 			ReadOnlyRoles: readOnlyRoles(a.Roles),
