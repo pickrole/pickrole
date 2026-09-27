@@ -18,6 +18,11 @@ updates:
     groups:
       npm:
         patterns: ['*']
+    ignore:
+      # svelte-check (up to 4.7.6) only accepts TypeScript 5 and 6 as a peer,
+      # so `npm ci` fails with TypeScript 7. Remove this once it supports 7.
+      - dependency-name: typescript
+        versions: ['>=7']
 
   # Go modules. The Go toolchain itself (go.mod `toolchain`, scripts/setup-el8.sh)
   # is updated by hand; govulncheck in CI flags when it's due (docs/adr/0021).
