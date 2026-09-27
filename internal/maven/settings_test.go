@@ -130,10 +130,10 @@ func TestUpsertServerKeepsBackup(t *testing.T) {
 	if err := os.WriteFile(path, []byte(original), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := UpsertServer(path, "codeartifact", "T1"); err != nil {
+	if err := UpsertServers(path, []string{"codeartifact"}, "T1"); err != nil {
 		t.Fatal(err)
 	}
-	if err := UpsertServer(path, "codeartifact", "T2"); err != nil {
+	if err := UpsertServers(path, []string{"codeartifact"}, "T2"); err != nil {
 		t.Fatal(err)
 	}
 	backup, err := os.ReadFile(path + ".pickrole.bak")
@@ -158,7 +158,7 @@ func TestUpsertServerKeepsBackup(t *testing.T) {
 func TestUpsertServerRefusesPathOutsideHome(t *testing.T) {
 	homeDir(t)
 	outside := filepath.Join(t.TempDir(), "settings.xml")
-	if err := UpsertServer(outside, "codeartifact", "T"); err == nil {
+	if err := UpsertServers(outside, []string{"codeartifact"}, "T"); err == nil {
 		t.Fatal("writing outside the home should be refused")
 	}
 	if _, err := os.Stat(outside); !os.IsNotExist(err) {
@@ -177,7 +177,7 @@ func TestUpsertServerDoesNotFollowBackupLink(t *testing.T) {
 	if err := os.Symlink(target, path+".pickrole.bak"); err != nil {
 		t.Skipf("symlinks unavailable here: %v", err)
 	}
-	if err := UpsertServer(path, "codeartifact", "T1"); err != nil {
+	if err := UpsertServers(path, []string{"codeartifact"}, "T1"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat(target); !os.IsNotExist(err) {

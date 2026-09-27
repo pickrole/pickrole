@@ -42,4 +42,5 @@ frontend/package.json.md5
 
 # Local Claude Code context (not versioned)
 CLAUDE.md
+.claude/
 CLAUDE.local.md

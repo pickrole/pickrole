@@ -20,7 +20,7 @@ PickRole writes the credentials to the files AWS tools already read on their own
 | What | Where |
 | --- | --- |
 | Temporary credentials | `~/.aws/credentials`, in the `default` profile or in one named profile per account and role |
-| CodeArtifact token | `~/.m2/settings.xml`, only in the `<server>` entry with the configured ID |
+| CodeArtifact token | `~/.m2/settings.xml`, only in the `<server>` entries with the configured IDs |
 | SSO session | `~/.aws/sso/cache`, in the same format as the AWS CLI |
 
 Switch accounts in PickRole and every terminal uses the new one on its next command.
@@ -126,7 +126,7 @@ instead) and proxies that require NTLM or Kerberos authentication (use a local p
     "domainOwner": "[ACCOUNT ID]",
     "region": "us-east-1",
     "repository": "[REPOSITORY]",
-    "tools": { "maven": { "enabled": true, "serverId": "codeartifact", "settingsPath": "~/.m2/settings.xml" } }
+    "tools": { "maven": { "enabled": true, "serverIds": ["codeartifact"], "settingsPath": "~/.m2/settings.xml" } }
   },
   "preferences": { "profileMode": "default", "theme": "system", "language": "system" }
 }
@@ -134,9 +134,21 @@ instead) and proxies that require NTLM or Kerberos authentication (use a local p
 
 ### Maven
 
-In your `pom.xml` (or `settings.xml`), the CodeArtifact repository must use the same `id` configured in PickRole
-(default: `codeartifact`). PickRole only changes `<username>` and `<password>` in that entry. The first time it
-changes an existing `settings.xml`, it keeps a copy in `settings.xml.pickrole.bak`.
+**Settings → CodeArtifact → Detect in settings.xml** fills in everything below from your `settings.xml`. To do it by
+hand, everything comes from the CodeArtifact repository URL:
+
+```
+https://my-domain-111122223333.d.codeartifact.us-east-1.amazonaws.com/maven/releases/
+        └─ domain ─┘ └─ owner ──┘                └ region ┘          └ repository ┘
+```
+
+The domain can contain hyphens; the owner account is the 12 digits after the last one.
+
+**Server IDs** are the `<server>` entries that get the token: one per `<repository>`, `<pluginRepository>` or
+`<mirror>` pointing to CodeArtifact, with the same `id`. Detection lists those, and every `<server>` whose password is
+`${env.CODEARTIFACT_AUTH_TOKEN}`. PickRole only changes `<username>` and `<password>` in these entries, replacing the
+variable with the token itself, so no `export` is needed. The first time it changes an existing `settings.xml`, it
+keeps a copy in `settings.xml.pickrole.bak`.
 
 For safety, `settings.xml` must be inside your home folder (no network paths, no links pointing outside it), and it's
 written readable only by you, since it now holds the token.

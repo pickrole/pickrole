@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net"
 	"net/url"
 	"os"
@@ -21,6 +22,7 @@ import (
 	"github.com/pickrole/pickrole/internal/awsfiles"
 	"github.com/pickrole/pickrole/internal/codeartifact"
 	"github.com/pickrole/pickrole/internal/config"
+	"github.com/pickrole/pickrole/internal/fsutil"
 	"github.com/pickrole/pickrole/internal/i18n"
 	"github.com/pickrole/pickrole/internal/maven"
 	"github.com/pickrole/pickrole/internal/sso"
@@ -332,6 +334,26 @@ func browserURL(raw string) bool {
 	return false
 }
 
+// DetectMaven reads the settings.xml of cfg, which may not be saved yet, and
+// returns the <server> ids that need the CodeArtifact token and the
+// CodeArtifact domains its repositories point to. Only ids of cfg's domain
+// are returned when one is set.
+func (s *Service) DetectMaven(cfg config.Config) (maven.Detection, error) {
+	m := cfg.CodeArtifact.Tools.Maven
+	if err := config.ValidateSettingsPath(m.SettingsPath); err != nil {
+		return maven.Detection{}, err
+	}
+	data, err := os.ReadFile(fsutil.ExpandHome(m.SettingsPath)) // #nosec G304 -- validated above: inside the home directory
+	if errors.Is(err, fs.ErrNotExist) {
+		return maven.Detection{}, i18n.New("maven.settings_not_found", m.SettingsPath)
+	}
+	if err != nil {
+		return maven.Detection{}, err
+	}
+	ca := cfg.CodeArtifact
+	return maven.Detect(string(data), maven.Domain{Domain: ca.Domain, Owner: ca.DomainOwner, Region: ca.Region}), nil
+}
+
 // ConnectionTest is the result of TestConnection, ready to show.
 type ConnectionTest struct {
 	// Target is the host that was tried: the SSO sign-in endpoint.
@@ -544,9 +566,9 @@ func (s *Service) LoadProfile(accountID, role string) (LoadResult, error) {
 			res.Active.CodeArtifact = true
 			res.Active.CodeArtifactExpiresAt = tok.ExpiresAt
 			if m := ca.Tools.Maven; m.Enabled {
-				// UpsertServer validates the path again: a config written by an
+				// UpsertServers validates the path again: a config written by an
 				// older version, or edited by hand, was never checked on save.
-				if err := maven.UpsertServer(m.SettingsPath, m.ServerID, tok.Value); err != nil {
+				if err := maven.UpsertServers(m.SettingsPath, m.ServerIDs, tok.Value); err != nil {
 					res.Warnings = append(res.Warnings, "Maven: "+err.Error())
 				} else {
 					res.Written = append(res.Written, m.SettingsPath)

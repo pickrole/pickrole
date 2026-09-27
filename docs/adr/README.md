@@ -27,3 +27,4 @@ decision changes, a new ADR supersedes it ([0001](0001-record-architecture-decis
 | [0019](0019-second-linux-build-for-webkit2gtk-4-1.md) | A second Linux build for webkit2gtk-4.1 | accepted |
 | [0020](0020-proxy-settings-and-gnome.md) | Proxy settings in the app, and the GNOME proxy on Linux | accepted |
 | [0021](0021-pinned-go-toolchain.md) | Pinned Go toolchain, and vulnerability checks on the binaries | accepted |
+| [0022](0022-several-maven-servers.md) | Several Maven servers, detected from settings.xml | accepted |

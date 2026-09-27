@@ -7,8 +7,12 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- README: a command-line install script (download, verify, install in one go) and a ready-made prompt for installing
-  with an AI coding assistant.
+- The CodeArtifact token goes to several Maven `<server>` entries at once, one per repository, plugin repository or
+  mirror. **Settings → CodeArtifact → Detect in settings.xml** finds them: repositories whose URL is CodeArtifact and
+  servers whose password reads `${env.CODEARTIFACT_AUTH_TOKEN}`. It also fills the domain, owner account and region
+  from the repository URL. Configs with a single `serverId` keep working.
+- README: step-by-step command-line install (download, verify the checksum, install) and a ready-made prompt for
+  installing with an AI coding assistant.
 
 ## [0.2.0-beta.3] - 2026-09-27
 

@@ -2,7 +2,7 @@
 //
 // The file is edited as text, not re-serialised, so the user's formatting,
 // comments and every other entry stay exactly as they were: only the
-// <server> whose <id> matches is touched.
+// <server> entries whose <id> is configured are touched.
 package maven
 
 import (
@@ -42,17 +42,18 @@ var (
 // ErrInvalidSettings means the file could not be edited safely.
 var ErrInvalidSettings = i18n.New("maven.invalid_settings")
 
-// UpsertServer sets the credentials of the <server> with the given id,
-// creating the file, the <servers> element or the <server> entry as needed.
-// A one-time backup (settings.xml.pickrole.bak) is kept the first time an
-// existing file is changed.
-func UpsertServer(path, serverID, token string) error {
+// UpsertServers sets the credentials of every <server> whose id is in ids,
+// creating the file, the <servers> element or the <server> entries as
+// needed. A one-time backup (settings.xml.pickrole.bak) is kept the first
+// time an existing file is changed.
+func UpsertServers(path string, ids []string, token string) error {
 	// Checked here, where the token is written, so no caller can skip it.
 	if err := config.ValidateSettingsPath(path); err != nil {
 		return err
 	}
 	path = fsutil.ExpandHome(path)
-	if strings.TrimSpace(serverID) == "" {
+	ids = config.CleanServerIDs(ids)
+	if len(ids) == 0 {
 		return i18n.New("maven.empty_server_id")
 	}
 	existing, err := os.ReadFile(path) // #nosec G304 -- validated above: inside the home directory
@@ -64,9 +65,11 @@ func UpsertServer(path, serverID, token string) error {
 	if fresh {
 		content = newSettings
 	}
-	updated, err := upsert(content, serverID, token)
-	if err != nil {
-		return err
+	updated := content
+	for _, id := range ids {
+		if updated, err = upsert(updated, id, token); err != nil {
+			return err
+		}
 	}
 	if !fresh && updated != content {
 		if err := writeBackup(path+".pickrole.bak", existing); err != nil {

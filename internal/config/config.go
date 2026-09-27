@@ -38,8 +38,13 @@ type SSO struct {
 }
 
 type Maven struct {
-	Enabled      bool   `json:"enabled"`
-	ServerID     string `json:"serverId"`
+	Enabled bool `json:"enabled"`
+	// ServerIDs are the <server> entries of settings.xml that receive the
+	// token: one per repository or mirror that points to CodeArtifact.
+	ServerIDs []string `json:"serverIds"`
+	// ServerID is the single id of configs written before ServerIDs; it
+	// is moved into ServerIDs when the config is read.
+	ServerID     string `json:"serverId,omitempty"`
 	SettingsPath string `json:"settingsPath"`
 }
 
@@ -105,7 +110,7 @@ func Default() Config {
 			Region: "us-east-1",
 			Tools: Tools{Maven: Maven{
 				Enabled:      true,
-				ServerID:     "codeartifact",
+				ServerIDs:    []string{"codeartifact"},
 				SettingsPath: "~/.m2/settings.xml",
 			}},
 		},
@@ -211,8 +216,16 @@ func (c *Config) fillDefaults() {
 	}
 	c.Proxy.URL = strings.TrimSpace(c.Proxy.URL)
 	c.Proxy.NoProxy = strings.TrimSpace(c.Proxy.NoProxy)
-	if c.CodeArtifact.Tools.Maven.ServerID == "" {
-		c.CodeArtifact.Tools.Maven.ServerID = d.CodeArtifact.Tools.Maven.ServerID
+	m := &c.CodeArtifact.Tools.Maven
+	// A config from before ServerIDs has only serverId, so ServerIDs still
+	// holds the default: the old id replaces it.
+	if m.ServerID != "" {
+		m.ServerIDs = []string{m.ServerID}
+		m.ServerID = ""
+	}
+	m.ServerIDs = CleanServerIDs(m.ServerIDs)
+	if len(m.ServerIDs) == 0 {
+		m.ServerIDs = d.CodeArtifact.Tools.Maven.ServerIDs
 	}
 	if c.CodeArtifact.Tools.Maven.SettingsPath == "" {
 		c.CodeArtifact.Tools.Maven.SettingsPath = d.CodeArtifact.Tools.Maven.SettingsPath
@@ -221,8 +234,20 @@ func (c *Config) fillDefaults() {
 	c.CodeArtifact.Domain = strings.TrimSpace(c.CodeArtifact.Domain)
 	c.CodeArtifact.DomainOwner = strings.TrimSpace(c.CodeArtifact.DomainOwner)
 	c.CodeArtifact.Repository = strings.TrimSpace(c.CodeArtifact.Repository)
-	c.CodeArtifact.Tools.Maven.ServerID = strings.TrimSpace(c.CodeArtifact.Tools.Maven.ServerID)
 	c.CodeArtifact.Tools.Maven.SettingsPath = strings.TrimSpace(c.CodeArtifact.Tools.Maven.SettingsPath)
+}
+
+// CleanServerIDs trims the ids and drops empty ones and repeats, keeping the
+// order.
+func CleanServerIDs(ids []string) []string {
+	out := []string{}
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if id != "" && !slices.Contains(out, id) {
+			out = append(out, id)
+		}
+	}
+	return out
 }
 
 var (
@@ -275,8 +300,13 @@ func (c Config) Validate() error {
 		return i18n.New("config.ca_region", ca.Region)
 	}
 	if m := ca.Tools.Maven; m.Enabled {
-		if !serverIDRe.MatchString(m.ServerID) {
-			return i18n.New("config.maven_server_id")
+		if len(m.ServerIDs) == 0 {
+			return i18n.New("config.maven_no_server_ids")
+		}
+		for _, id := range m.ServerIDs {
+			if !serverIDRe.MatchString(id) {
+				return i18n.New("config.maven_server_id", id)
+			}
 		}
 		if err := ValidateSettingsPath(m.SettingsPath); err != nil {
 			return err
