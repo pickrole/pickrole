@@ -5,6 +5,8 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0-beta.4] - 2026-09-27
+
 ### Added
 
 - The CodeArtifact token goes to several Maven `<server>` entries at once, one per repository, plugin repository or
@@ -97,6 +99,7 @@ First release, published before this repository became public.
 - On Linux, the GNOME proxy settings aren't read: use `HTTPS_PROXY`.
 - The binaries aren't signed.
 
-[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.3...HEAD
+[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.4...HEAD
+[0.2.0-beta.4]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.3...v0.2.0-beta.4
 [0.2.0-beta.3]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.2...v0.2.0-beta.3
 [0.2.0-beta.2]: https://github.com/pickrole/pickrole/releases/tag/v0.2.0-beta.2

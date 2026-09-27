@@ -73,7 +73,7 @@ Download, verify and install in one go. Set `version` to the tag on the [release
 and `file` to your package from the table above:
 
 ```bash
-version=v0.2.0-beta.3
+version=v0.2.0-beta.4
 file=pickrole_${version#v}_el8_x86_64.rpm
 
 curl -LO "https://github.com/pickrole/pickrole/releases/download/${version}/${file}"
