@@ -230,3 +230,34 @@ func TestValidateProxy(t *testing.T) {
 		t.Errorf("proxy mode = %q, want system", cfg.Proxy.Mode)
 	}
 }
+
+// Loading a role in production asks for confirmation unless its name says it
+// only reads; a substring such as "read" in "DataReadWrite" must not count.
+func TestIsReadOnlyRole(t *testing.T) {
+	for role, want := range map[string]bool{
+		"ReadOnly":            true,
+		"AWSReadOnlyAccess":   true,
+		"readonly":            true,
+		"read-only":           true,
+		"ViewOnlyAccess":      true,
+		"SecurityAudit":       true,
+		"Billing":             true,
+		"AWSBilling":          true,
+		"DataReadWrite":       false,
+		"ReadWriteAdmin":      false,
+		"ReadOnlyAdmin":       false,
+		"OverviewAdmin":       false,
+		"AuditWriter":         false,
+		"Breadmaker":          false,
+		"ReadyDeploy":         false,
+		"AdministratorAccess": false,
+		"Developer":           false,
+		"PowerUserAccess":     false,
+		"BillingFullAccess":   false,
+		"":                    false,
+	} {
+		if got := IsReadOnlyRole(role); got != want {
+			t.Errorf("IsReadOnlyRole(%q) = %v, want %v", role, got, want)
+		}
+	}
+}

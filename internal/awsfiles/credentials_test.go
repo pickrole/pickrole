@@ -106,3 +106,30 @@ func TestUpsertProfileRejectsInjectedValues(t *testing.T) {
 		t.Errorf("base64 session token rejected: %v", err)
 	}
 }
+
+// The export lines are pasted into a shell: values are quoted, and anything
+// that isn't a valid credential is refused instead of copied.
+func TestExportLines(t *testing.T) {
+	creds := Credentials{AccessKeyID: "ASIAEXAMPLE", SecretAccessKey: "abc/def+ghi=", SessionToken: "tok=="}
+	got, err := ExportLines(creds, "sa-east-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "export AWS_ACCESS_KEY_ID='ASIAEXAMPLE'\n" +
+		"export AWS_SECRET_ACCESS_KEY='abc/def+ghi='\n" +
+		"export AWS_SESSION_TOKEN='tok=='\n" +
+		"export AWS_REGION='sa-east-1'\n"
+	if got != want {
+		t.Errorf("got\n%s\nwant\n%s", got, want)
+	}
+
+	for _, bad := range []string{"tok\nrm -rf ~", "$(id)", "`id`", "tok'; id; '"} {
+		creds.SessionToken = bad
+		if _, err := ExportLines(creds, ""); err == nil {
+			t.Errorf("session token %q should be refused", bad)
+		}
+	}
+	if got := shellQuote("it's"); got != `'it'\''s'` {
+		t.Errorf("shellQuote = %s", got)
+	}
+}

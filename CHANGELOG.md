@@ -5,6 +5,21 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0-beta.3] - 2026-09-27
+
+### Fixed
+
+- In production, roles whose names only contained "read", "view", "audit" or "billing" (such as `DataReadWrite` or
+  `OverviewAdmin`) loaded without confirmation. Only names that say the role only reads, as whole words (`ReadOnly`,
+  `ViewOnly`, `SecurityAudit`, `Billing`), skip it now, and any word such as `Write` or `Admin` asks for confirmation.
+- The comment PickRole writes in `~/.aws/credentials` and the version suffix of modified local builds are in English.
+
+### Security
+
+- "Copy export" validates the credentials itself and quotes every value before they reach the clipboard.
+- The build scripts refuse a version with characters outside letters, digits, `.`, `-` and `_`.
+- Dependabot also watches the frontend packages.
+
 ## [0.2.0-beta.2] - 2026-09-26
 
 First public release, and a beta: everything planned for 0.2.0 is in, and it needs testing on real networks and AWS
@@ -71,5 +86,6 @@ First release, published before this repository became public.
 - On Linux, the GNOME proxy settings aren't read: use `HTTPS_PROXY`.
 - The binaries aren't signed.
 
-[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.2...HEAD
+[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.3...HEAD
+[0.2.0-beta.3]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.2...v0.2.0-beta.3
 [0.2.0-beta.2]: https://github.com/pickrole/pickrole/releases/tag/v0.2.0-beta.2

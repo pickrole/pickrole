@@ -53,6 +53,9 @@ type Account struct {
 	store.Account
 	Production bool `json:"production"`
 	Favorite   bool `json:"favorite"`
+	// ReadOnlyRoles lists the roles whose names say they only read; in
+	// production, the others ask for confirmation before loading.
+	ReadOnlyRoles []string `json:"readOnlyRoles"`
 }
 
 // Recent is a recently used profile as shown on the start screen.
@@ -149,6 +152,16 @@ func (s *Service) requireClient() (*sso.Client, error) {
 	return s.client, nil
 }
 
+func readOnlyRoles(roles []string) []string {
+	out := []string{}
+	for _, r := range roles {
+		if config.IsReadOnlyRole(r) {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
 // Overview returns the current state for the UI.
 func (s *Service) Overview() Overview {
 	s.mu.Lock()
@@ -181,8 +194,9 @@ func (s *Service) overviewLocked() Overview {
 	for _, a := range s.snapshot.Accounts {
 		o.Accounts = append(o.Accounts, Account{
 			Account:    a,
-			Production: s.cfg.IsProduction(a.Name),
-			Favorite:   fav[a.ID],
+			Production:    s.cfg.IsProduction(a.Name),
+			Favorite:      fav[a.ID],
+			ReadOnlyRoles: readOnlyRoles(a.Roles),
 		})
 	}
 	for _, r := range s.state.Recents {
@@ -586,5 +600,9 @@ func (s *Service) CopyExport() error {
 	if creds == nil {
 		return i18n.New("app.load_profile_first")
 	}
-	return s.platform.SetSecretClipboard(awsfiles.ExportLines(*creds, ""))
+	lines, err := awsfiles.ExportLines(*creds, "")
+	if err != nil {
+		return err
+	}
+	return s.platform.SetSecretClipboard(lines)
 }

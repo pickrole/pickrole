@@ -83,10 +83,10 @@ func UpsertProfile(path, profile string, creds Credentials) error {
 func section(profile string, c Credentials) []string {
 	lines := []string{
 		"[" + profile + "]",
-		"# Gerenciado pelo PickRole",
+		"# Managed by PickRole",
 	}
 	if !c.Expiration.IsZero() {
-		lines[1] += " · expira em " + c.Expiration.UTC().Format(time.RFC3339)
+		lines[1] += " · expires " + c.Expiration.UTC().Format(time.RFC3339)
 	}
 	return append(lines,
 		"aws_access_key_id = "+c.AccessKeyID,
@@ -146,14 +146,25 @@ func upsert(content, profile string, creds Credentials) string {
 }
 
 // ExportLines returns shell export statements for creds, for people who
-// still want environment variables in one specific terminal.
-func ExportLines(creds Credentials, region string) string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "export AWS_ACCESS_KEY_ID=%s\n", creds.AccessKeyID)
-	fmt.Fprintf(&b, "export AWS_SECRET_ACCESS_KEY=%s\n", creds.SecretAccessKey)
-	fmt.Fprintf(&b, "export AWS_SESSION_TOKEN=%s\n", creds.SessionToken)
-	if region != "" {
-		fmt.Fprintf(&b, "export AWS_REGION=%s\n", region)
+// still want environment variables in one specific terminal. The text is
+// pasted into a shell, so it validates the credentials itself and quotes
+// every value, whatever the caller did before.
+func ExportLines(creds Credentials, region string) (string, error) {
+	if err := creds.Validate(); err != nil {
+		return "", err
 	}
-	return b.String()
+	var b strings.Builder
+	fmt.Fprintf(&b, "export AWS_ACCESS_KEY_ID=%s\n", shellQuote(creds.AccessKeyID))
+	fmt.Fprintf(&b, "export AWS_SECRET_ACCESS_KEY=%s\n", shellQuote(creds.SecretAccessKey))
+	fmt.Fprintf(&b, "export AWS_SESSION_TOKEN=%s\n", shellQuote(creds.SessionToken))
+	if region != "" {
+		fmt.Fprintf(&b, "export AWS_REGION=%s\n", shellQuote(region))
+	}
+	return b.String(), nil
+}
+
+// shellQuote wraps s in single quotes for POSIX shells, where nothing inside
+// is interpreted; a single quote in s becomes '\''.
+func shellQuote(s string) string {
+	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }

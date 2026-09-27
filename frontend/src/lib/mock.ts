@@ -28,13 +28,16 @@ let config: Config = {
   preferences: { profileMode: 'default', autoRenew: true, startMinimized: false, theme: 'system', language: 'system', prodPattern: '' },
 }
 
-const accounts: Account[] = [
+// The backend decides which roles are read-only (config.IsReadOnlyRole); the mock only has ReadOnly.
+const accounts: Account[] = (
+  [
   { id: '111111111111', name: 'data-dev', email: '', roles: ['Developer'], production: false, favorite: false },
   { id: '222222222222', name: 'data-prod', email: '', roles: ['Developer', 'ReadOnly'], production: true, favorite: false },
   { id: '333333333333', name: 'platform-dev', email: '', roles: ['Admin', 'Developer', 'ReadOnly'], production: false, favorite: true },
   { id: '444444444444', name: 'platform-prod', email: '', roles: ['Admin', 'ReadOnly'], production: true, favorite: true },
   { id: '555555555555', name: 'sandbox', email: '', roles: ['Admin'], production: false, favorite: false },
-]
+  ] as Omit<Account, 'readOnlyRoles'>[]
+).map((a) => ({ ...a, readOnlyRoles: (a.roles ?? []).filter((r) => r === 'ReadOnly') }))
 
 let recents: Recent[] = [
   { accountId: '333333333333', accountName: 'platform-dev', role: 'Developer', usedAt: ago(15), production: false },
