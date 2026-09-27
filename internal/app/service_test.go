@@ -208,3 +208,32 @@ func TestSetLanguage(t *testing.T) {
 		t.Errorf("English message expected, got %v", err)
 	}
 }
+
+func TestDetectMaven(t *testing.T) {
+	dir := isolate(t)
+	svc, start := New(Build{Version: "test"})
+	start(context.Background(), &fakePlatform{})
+	cfg := svc.DefaultConfig()
+	cfg.CodeArtifact.Tools.Maven.SettingsPath = "~/.m2/settings.xml"
+
+	if _, err := svc.DetectMaven(cfg); err == nil {
+		t.Error("a missing settings.xml should be reported")
+	}
+
+	writeFile(t, filepath.Join(dir, ".m2", "settings.xml"), `<settings><servers>
+  <server><id>a</id><password>${env.CODEARTIFACT_AUTH_TOKEN}</password></server>
+  <server><id>b</id><password>${env.CODEARTIFACT_AUTH_TOKEN}</password></server>
+</servers></settings>`)
+	det, err := svc.DetectMaven(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(det.ServerIDs, ",") != "a,b" {
+		t.Errorf("server ids = %v", det.ServerIDs)
+	}
+
+	cfg.CodeArtifact.Tools.Maven.SettingsPath = filepath.Join(t.TempDir(), "settings.xml")
+	if _, err := svc.DetectMaven(cfg); err == nil {
+		t.Error("a settings.xml outside the home folder should be refused")
+	}
+}

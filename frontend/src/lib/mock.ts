@@ -1,4 +1,4 @@
-import type { About, Account, Config, ConnectionTest, DeviceAuth, LoadResult, Overview, Recent } from './types'
+import type { About, Account, Config, ConnectionTest, DeviceAuth, LoadResult, MavenDetection, Overview, Recent } from './types'
 
 // In-memory stand-in for the Go backend, used by `npm run dev` in a plain
 // browser. Data is illustrative only.
@@ -18,7 +18,7 @@ let config: Config = {
     region: 'us-east-1',
     repository: 'releases',
     tools: {
-      maven: { enabled: true, serverId: 'codeartifact', settingsPath: '~/.m2/settings.xml' },
+      maven: { enabled: true, serverIds: ['codeartifact'], settingsPath: '~/.m2/settings.xml' },
       gradle: false,
       npm: false,
       pip: false,
@@ -90,6 +90,13 @@ export const mock = {
       source: manual ? 'manual' : cfg.proxy.mode === 'none' ? 'none' : 'windows',
       note: '',
       error: '',
+    }
+  },
+  async DetectMaven(_cfg: Config): Promise<MavenDetection> {
+    await wait(400)
+    return {
+      serverIds: ['ca-releases', 'ca-snapshots', 'ca-plugins', 'ca-mirror'],
+      domains: [{ domain: 'example', owner: '111122223333', region: 'us-east-1' }],
     }
   },
   async ImportConfig() {

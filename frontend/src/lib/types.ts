@@ -13,8 +13,15 @@ export interface SSO {
 
 export interface Maven {
   enabled: boolean
-  serverId: string
+  /** The <server> ids of settings.xml that receive the token. */
+  serverIds: string[]
   settingsPath: string
+}
+
+/** Mirrors maven.Detection: what DetectMaven found in settings.xml. */
+export interface MavenDetection {
+  serverIds: string[]
+  domains: { domain: string; owner: string; region: string }[]
 }
 
 export interface Tools {

@@ -2,7 +2,7 @@
   import { onMount, untrack } from 'svelte'
   import Icon from './Icon.svelte'
   import { api, errorMessage } from './api'
-  import type { Config, ConnectionTest, Overview, SSO } from './types'
+  import type { Config, ConnectionTest, MavenDetection, Overview, SSO } from './types'
   import { t, tn, type Key } from './i18n/index.svelte'
 
   let {
@@ -28,6 +28,9 @@
   let testing = $state(false)
   let test = $state<ConnectionTest | null>(null)
   let testError = $state('')
+  let detectingMaven = $state(false)
+  let mavenNotes = $state<string[]>([])
+  let mavenError = $state('')
 
   onMount(async () => {
     detected = await api.DetectSSO()
@@ -102,6 +105,46 @@
     if (!r.proxy) return t('settings.test.direct', { target: r.target })
     const source = t(`settings.source.${r.source}` as Key)
     return t('settings.test.proxy', { target: r.target, proxy: r.proxy, source })
+  }
+
+  // The ids are edited as one comma-separated field; the list is updated
+  // when the field loses focus, so typing a comma doesn't reshuffle it.
+  function setServerIds(text: string) {
+    const ids: string[] = []
+    for (const id of text.split(/[\s,;]+/)) if (id && !ids.includes(id)) ids.push(id)
+    cfg.codeArtifact.tools.maven.serverIds = ids
+  }
+
+  async function detectMaven() {
+    detectingMaven = true
+    mavenNotes = []
+    mavenError = ''
+    try {
+      const det: MavenDetection = await api.DetectMaven($state.snapshot(cfg))
+      const ca = cfg.codeArtifact
+      const notes: string[] = []
+      if (!ca.domain && det.domains.length === 1) {
+        const d = det.domains[0]
+        ca.domain = d.domain
+        ca.domainOwner = d.owner
+        ca.region = d.region
+        notes.push(t('settings.mavenDetectedDomain'))
+      } else if (!ca.domain && det.domains.length > 1) {
+        const domains = det.domains.map((d) => `${d.domain}-${d.owner} (${d.region})`).join(', ')
+        notes.push(t('settings.mavenManyDomains', { domains }))
+      }
+      if (det.serverIds.length > 0) {
+        ca.tools.maven.serverIds = det.serverIds
+        notes.unshift(t('settings.mavenDetected', { count: det.serverIds.length }))
+      } else {
+        notes.unshift(t('settings.mavenNothing'))
+      }
+      mavenNotes = notes
+    } catch (e) {
+      mavenError = errorMessage(e)
+    } finally {
+      detectingMaven = false
+    }
   }
 
   function useDetected() {
@@ -239,18 +282,35 @@
           </div>
         </div>
         {#if cfg.codeArtifact.tools.maven.enabled}
-          <div class="grid grid-cols-2 gap-x-4 gap-y-3 rounded-[10px] border border-line bg-surface px-4 py-3.5">
-            <label class="flex flex-col gap-1.5">
-              <span class={label}>{t('settings.mavenServerId')}</span>
-              <input class="{input} bg-bg" bind:value={cfg.codeArtifact.tools.maven.serverId} />
-            </label>
+          <div class="flex flex-col gap-3 rounded-[10px] border border-line bg-surface px-4 py-3.5">
             <label class="flex flex-col gap-1.5">
               <span class={label}>{t('settings.file')}</span>
               <input class="{input} bg-bg" bind:value={cfg.codeArtifact.tools.maven.settingsPath} />
             </label>
-            <span class="col-span-2 text-xs text-faint"
-              >{t('settings.mavenNote')}</span
-            >
+            <div class="flex flex-col gap-1.5">
+              <div class="flex items-end justify-between gap-3">
+                <label for="maven-server-ids" class={label}>{t('settings.mavenServerIds')}</label>
+                <button
+                  class="h-8 rounded-lg border border-line-strong px-3 text-[13px] font-medium"
+                  onclick={detectMaven}
+                  disabled={detectingMaven}>{detectingMaven ? t('settings.mavenDetecting') : t('settings.mavenDetect')}</button
+                >
+              </div>
+              <input
+                id="maven-server-ids"
+                class="{input} bg-bg"
+                value={cfg.codeArtifact.tools.maven.serverIds.join(', ')}
+                placeholder={t('settings.mavenServerIdsHint')}
+                onchange={(e) => setServerIds(e.currentTarget.value)}
+              />
+              <div aria-live="polite" class="flex flex-col gap-0.5 text-xs leading-normal">
+                {#if mavenError}
+                  <span class="text-prod-fg">{mavenError}</span>
+                {/if}
+                {#each mavenNotes as note (note)}<span class="text-muted">{note}</span>{/each}
+              </div>
+            </div>
+            <span class="text-xs text-faint">{t('settings.mavenNote')}</span>
           </div>
         {/if}
       {/if}

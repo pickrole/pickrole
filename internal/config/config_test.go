@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -51,7 +52,7 @@ func TestValidateMavenSettingsPath(t *testing.T) {
 	base.CodeArtifact.Domain = "acme"
 	base.CodeArtifact.DomainOwner = "123456789012"
 	base.CodeArtifact.Tools.Maven.Enabled = true
-	base.CodeArtifact.Tools.Maven.ServerID = "codeartifact"
+	base.CodeArtifact.Tools.Maven.ServerIDs = []string{"codeartifact"}
 
 	for path, ok := range map[string]bool{
 		"~/.m2/settings.xml":                            true,
@@ -93,7 +94,7 @@ func TestValidateMavenSettingsPath(t *testing.T) {
 	for id, ok := range map[string]bool{"codeartifact": true, "my_repo.v2-x": true, "a</id><x>": false, "a b": false, "": false} {
 		c := base
 		c.CodeArtifact.Tools.Maven.SettingsPath = "~/.m2/settings.xml"
-		c.CodeArtifact.Tools.Maven.ServerID = id
+		c.CodeArtifact.Tools.Maven.ServerIDs = []string{id}
 		if err := c.Validate(); (err == nil) != ok {
 			t.Errorf("serverId %q: accepted=%v, want %v", id, err == nil, ok)
 		}
@@ -108,8 +109,8 @@ func TestDecodeKeepsDefaults(t *testing.T) {
 	if cfg.SSO.Region != "sa-east-1" {
 		t.Errorf("region = %q", cfg.SSO.Region)
 	}
-	if cfg.CodeArtifact.Tools.Maven.ServerID != "codeartifact" {
-		t.Errorf("default Maven server id lost: %q", cfg.CodeArtifact.Tools.Maven.ServerID)
+	if ids := cfg.CodeArtifact.Tools.Maven.ServerIDs; !slices.Equal(ids, []string{"codeartifact"}) {
+		t.Errorf("default Maven server ids lost: %v", ids)
 	}
 	if cfg.Preferences.ProfileMode != ProfileDefault {
 		t.Errorf("profile mode = %q", cfg.Preferences.ProfileMode)
@@ -259,5 +260,45 @@ func TestIsReadOnlyRole(t *testing.T) {
 		if got := IsReadOnlyRole(role); got != want {
 			t.Errorf("IsReadOnlyRole(%q) = %v, want %v", role, got, want)
 		}
+	}
+}
+
+// Configs written before ServerIDs have a single serverId; it becomes the
+// list, and the old field isn't written back.
+func TestMavenServerIDs(t *testing.T) {
+	cfg, err := Decode([]byte(`{"sso":{"startUrl":"https://example.awsapps.com/start","region":"us-east-1"},
+		"codeArtifact":{"tools":{"maven":{"enabled":true,"serverId":"legacy","settingsPath":"~/.m2/settings.xml"}}}}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := cfg.CodeArtifact.Tools.Maven
+	if !slices.Equal(m.ServerIDs, []string{"legacy"}) || m.ServerID != "" {
+		t.Errorf("serverId not moved into serverIds: %+v", m)
+	}
+	data, _ := Encode(cfg)
+	if strings.Contains(string(data), `"serverId"`) {
+		t.Errorf("the old field should not be written back:\n%s", data)
+	}
+
+	cfg = validConfig()
+	cfg.CodeArtifact.Tools.Maven.ServerIDs = CleanServerIDs([]string{" a ", "b", "", "a"})
+	if !slices.Equal(cfg.CodeArtifact.Tools.Maven.ServerIDs, []string{"a", "b"}) {
+		t.Errorf("CleanServerIDs = %v", cfg.CodeArtifact.Tools.Maven.ServerIDs)
+	}
+
+	cfg.CodeArtifact.Enabled = true
+	cfg.CodeArtifact.Domain = "acme"
+	cfg.CodeArtifact.DomainOwner = "123456789012"
+	cfg.CodeArtifact.Tools.Maven.ServerIDs = []string{"ok", "bad id"}
+	if cfg.Validate() == nil {
+		t.Error("an id with a space should be rejected")
+	}
+	cfg.CodeArtifact.Tools.Maven.ServerIDs = nil
+	if cfg.Validate() == nil {
+		t.Error("an empty list should be rejected")
+	}
+	cfg.CodeArtifact.Tools.Maven.ServerIDs = []string{"ca-releases", "ca-snapshots"}
+	if err := cfg.Validate(); err != nil {
+		t.Errorf("valid list rejected: %v", err)
 	}
 }

@@ -37,7 +37,7 @@ flowchart LR
 | `internal/sso` | Device-code sign-in, renewal with the refresh token, accounts and roles (in parallel), role credentials. |
 | `internal/codeartifact` | `GetAuthorizationToken`. `AccessDenied` becomes `ErrNoAccess`: not an error for the user, just "no CodeArtifact". |
 | `internal/awsfiles` | Edits one section of `~/.aws/credentials`, keeping the rest ([ADR 0005](adr/0005-surgical-file-edits.md)). |
-| `internal/maven` | Edits one `<server>` in `settings.xml` as text, keeping its formatting; `.pickrole.bak` backup. |
+| `internal/maven` | Edits the configured `<server>` entries of `settings.xml` as text, keeping its formatting; `.pickrole.bak` backup. Detects which entries need the CodeArtifact token ([ADR 0022](adr/0022-several-maven-servers.md)). |
 | `internal/config` | PickRole's `config.json`, validation, production-account pattern, `sso-session` detection in `~/.aws/config`. |
 | `internal/store` | Account cache, recents, favorites, active profile, CodeArtifact access per role. |
 | `internal/awsenv` | Client endpoint (`AWS_ENDPOINT_URL*`) and proxy: the setting in the config, the environment variables, the Windows or GNOME settings, and the connection test ([ADR 0012](adr/0012-proxy.md), [ADR 0020](adr/0020-proxy-settings-and-gnome.md)). |
@@ -112,7 +112,7 @@ sequenceDiagram
   opt CodeArtifact enabled
     App->>CA: GetAuthorizationToken (with the role credentials)
     alt has access
-      App->>App: writes the token to the <server> in settings.xml
+      App->>App: writes the token to the configured <server> entries in settings.xml
     else AccessDenied
       App->>App: records "no CodeArtifact" (no warning)
     end
@@ -127,7 +127,7 @@ sequenceDiagram
 | `~/.aws/credentials` (or `AWS_SHARED_CREDENTIALS_FILE`) | Credentials of the loaded profile. Only the profile's section changes. | `0600` |
 | `~/.aws/sso/cache/<sha1>.json` | SSO token, AWS CLI format. | `0600` |
 | `~/.aws/config` (or `AWS_CONFIG_FILE`) | Read only: detects an `sso-session` on first run. | — |
-| Maven `settings.xml` (default `~/.m2/settings.xml`) | CodeArtifact token in the configured `<server>`. Must be inside the home folder. | `0600` |
+| Maven `settings.xml` (default `~/.m2/settings.xml`) | CodeArtifact token in the configured `<server>` entries. Must be inside the home folder. | `0600` |
 | `settings.xml.pickrole.bak` | Copy of the original, on the first change. | `0600` |
 | OS config folder + `pickrole/config.json` | PickRole configuration. | `0600` |
 | OS cache folder + `pickrole/` | Account cache, recents, favorites. | `0600` |
