@@ -32,6 +32,9 @@ da mesma release.
   Windows, inclusive PAC; no Linux, o proxy manual do GNOME). Para outro proxy, ou nenhum, use **Configurações →
   Rede**, onde **Testar conexão** confere se a AWS responde.
 
+Prefere baixar, conferir e instalar pelo terminal, ou pedir isso a um assistente de IA com acesso ao terminal? Veja
+["From the command line" e "With an AI assistant"](README.md#from-the-command-line) no README principal.
+
 ## Primeiro uso
 
 1. Abra o PickRole. Se o seu time já usa, clique em **Importar** e escolha o arquivo de configuração. Se não, informe a

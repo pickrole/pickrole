@@ -5,6 +5,11 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- README: a command-line install script (download, verify, install in one go) and a ready-made prompt for installing
+  with an AI coding assistant.
+
 ## [0.2.0-beta.3] - 2026-09-27
 
 ### Fixed
