@@ -67,6 +67,31 @@ which the AWS CLI and SDKs read.
 The `.exe` isn't code-signed yet, so on first run Windows may show "Windows protected your PC": choose **More info →
 Run anyway**. If your organization blocks unsigned executables, ask your IT team to allow it.
 
+### From the command line
+
+Download, verify and install in one go. Set `version` to the tag on the [releases page](https://github.com/pickrole/pickrole/releases)
+and `file` to your package from the table above:
+
+```bash
+version=v0.2.0-beta.3
+file=pickrole_${version#v}_el8_x86_64.rpm
+
+curl -LO "https://github.com/pickrole/pickrole/releases/download/${version}/${file}"
+curl -LO "https://github.com/pickrole/pickrole/releases/download/${version}/SHA256SUMS"
+sha256sum -c SHA256SUMS --ignore-missing
+sudo dnf install "./${file}"   # apt install for a .deb
+```
+
+### With an AI assistant
+
+An agentic coding assistant with shell access (Claude Code, Copilot CLI, and the like) can run the steps above for
+you. Hand it a prompt such as:
+
+> Install the latest PickRole release from https://github.com/pickrole/pickrole/releases for my Linux distribution
+> (see the package table in its README). Download the package and `SHA256SUMS` from the same release, verify the
+> checksum, then install it with my distribution's package manager. Confirm with me before running the install
+> command.
+
 ### Proxy
 
 By default PickRole finds the proxy by itself: `HTTPS_PROXY`/`HTTP_PROXY` (and `NO_PROXY`) when set, otherwise the
