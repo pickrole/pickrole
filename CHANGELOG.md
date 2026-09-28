@@ -5,6 +5,11 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0-beta.8] - 2026-09-28
+
+Where **Check for updates** fails with HTTP 403, install this version by hand (see the README); from here on, PickRole
+finds new versions through the release page when the GitHub API refuses.
+
 ### Fixed
 
 - **Check for updates** no longer fails with HTTP 403 on company networks: when the GitHub API refuses (its limit per
@@ -153,7 +158,8 @@ First release, published before this repository became public.
 - On Linux, the GNOME proxy settings aren't read: use `HTTPS_PROXY`.
 - The binaries aren't signed.
 
-[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.7...HEAD
+[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.8...HEAD
+[0.2.0-beta.8]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.7...v0.2.0-beta.8
 [0.2.0-beta.7]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.6...v0.2.0-beta.7
 [0.2.0-beta.6]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.5...v0.2.0-beta.6
 [0.2.0-beta.5]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.4...v0.2.0-beta.5
