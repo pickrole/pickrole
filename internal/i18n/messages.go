@@ -58,6 +58,7 @@ var catalog = map[Lang]map[string]string{
 		"update.download": "Couldn't download the new version",
 		"update.install":  "Couldn't install the new version",
 		"update.none":     "No new version to install",
+		"update.pbrun":    "On this machine, administrator commands go through pbrun, which needs a terminal.",
 
 		"sso.login_required":      "Your SSO session expired. Sign in again.",
 		"sso.register_client":     "Couldn't register the OIDC client",
@@ -120,6 +121,7 @@ var catalog = map[Lang]map[string]string{
 		"update.download": "Não foi possível baixar a versão nova",
 		"update.install":  "Não foi possível instalar a versão nova",
 		"update.none":     "Nenhuma versão nova para instalar",
+		"update.pbrun":    "Nesta máquina, comandos de administrador passam pelo pbrun, que precisa de um terminal.",
 
 		"sso.login_required":      "Sua sessão SSO expirou. Entre novamente.",
 		"sso.register_client":     "Não foi possível registrar o cliente OIDC",

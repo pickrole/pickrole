@@ -1,6 +1,7 @@
 package update
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -26,7 +27,19 @@ type Installation struct {
 	Variant string
 	// Exe is the running executable.
 	Exe string
+	// Elevator is "pbrun" on machines that elevate privileges through it
+	// (common in companies, instead of sudo). The package is then installed
+	// from a terminal: pbrun needs one, and pkexec isn't allowed there.
+	Elevator string
 }
+
+// ErrTerminalInstall means this machine elevates privileges through a tool
+// that needs a terminal (pbrun), so the install is left to the user.
+var ErrTerminalInstall = errors.New("this machine elevates privileges through pbrun")
+
+// TerminalInstall reports whether the package is installed from a terminal
+// rather than through the desktop password dialog.
+func (i Installation) TerminalInstall() bool { return i.Elevator != "" }
 
 // Supported reports whether PickRole can update this installation itself.
 func (i Installation) Supported() bool { return i.Format != "" }
@@ -59,13 +72,17 @@ func (i Installation) installCommand(path string) []string {
 }
 
 // ManualCommand is what to run in a terminal when the automatic install
-// isn't possible (no pkexec, or not allowed by the organization).
+// isn't possible (no pkexec, not allowed, or pbrun instead of sudo).
 func (i Installation) ManualCommand(path string) string {
+	elevate := "sudo"
+	if i.Elevator != "" {
+		elevate = i.Elevator
+	}
 	switch i.Format {
 	case FormatRPM:
-		return "sudo dnf install " + shellQuote(path)
+		return elevate + " dnf install " + shellQuote(path)
 	case FormatDeb:
-		return "sudo apt install " + shellQuote(path)
+		return elevate + " apt install " + shellQuote(path)
 	}
 	return ""
 }

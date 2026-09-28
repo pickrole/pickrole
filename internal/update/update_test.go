@@ -176,6 +176,10 @@ func TestAssetAndManualCommand(t *testing.T) {
 	if got := rpm.ManualCommand("/home/me/.cache/it's.rpm"); got != `sudo dnf install '/home/me/.cache/it'\''s.rpm'` {
 		t.Errorf("manual command: %s", got)
 	}
+	pbrun := Installation{Format: FormatRPM, Variant: "el8", Elevator: "pbrun"}
+	if got := pbrun.ManualCommand("/x.rpm"); got != "pbrun dnf install '/x.rpm'" || !pbrun.TerminalInstall() || rpm.TerminalInstall() {
+		t.Errorf("pbrun manual command: %s", got)
+	}
 	if got := rpm.installCommand("/x.rpm"); len(got) != 5 || got[0] != "pkexec" || got[1] != "dnf" {
 		t.Errorf("install command: %v", got)
 	}

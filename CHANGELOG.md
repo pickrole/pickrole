@@ -7,6 +7,8 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- On Linux machines where administrator commands go through `pbrun`, updates skip the password prompt, which can't
+  work there: PickRole downloads and checks the package and shows the `pbrun dnf install …` command to run.
 - The new-version notice moved from a header badge to the **About** button, which gets a dot; About shows the new
   version with **Update**, and **Check for updates** checks right away. Updates that fix a security issue (a
   `Security` section in their release notes) show in orange and say so.

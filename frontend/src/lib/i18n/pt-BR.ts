@@ -111,6 +111,9 @@ export const ptBR: Messages = {
     'O PickRole baixa, confere com os checksums da release, instala e reinicia. No Linux, o sistema pede a sua senha.',
   'update.notSupported': 'Esta instalação não se atualiza sozinha. Baixe a versão nova na página da release.',
   'update.install': 'Atualizar agora',
+  'update.prepare': 'Baixar e conferir',
+  'update.explainTerminal':
+    'O PickRole baixa e confere com os checksums da release; você instala com o comando pbrun que ele mostrar e abre o PickRole de novo.',
   'update.retry': 'Tentar de novo',
   'update.later': 'Depois',
   'update.working': 'Baixando e conferindo…',

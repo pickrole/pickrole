@@ -23,7 +23,7 @@ func Detect() Installation {
 	if real, err := filepath.EvalSymlinks(exe); err == nil {
 		exe = real
 	}
-	inst := Installation{Variant: variant, Exe: exe}
+	inst := Installation{Variant: variant, Exe: exe, Elevator: findPbrun()}
 	if exe != "/usr/bin/pickrole" {
 		return inst
 	}
@@ -47,6 +47,9 @@ func (i Installation) Apply(pkg string) error {
 		return errors.New("this installation can't be updated automatically")
 	}
 	manual := func(err error) error { return &ManualError{Err: err, Command: i.ManualCommand(pkg)} }
+	if i.TerminalInstall() {
+		return manual(ErrTerminalInstall)
+	}
 	if _, err := exec.LookPath(args[0]); err != nil {
 		return manual(err)
 	}
@@ -59,6 +62,20 @@ func (i Installation) Apply(pkg string) error {
 		return manual(fmt.Errorf("%w: %s", err, lastLine(out)))
 	}
 	return nil
+}
+
+// findPbrun returns "pbrun" when it is installed. An app started from the
+// application menu may have a short PATH, so the usual places are checked too.
+func findPbrun() string {
+	if _, err := exec.LookPath("pbrun"); err == nil {
+		return "pbrun"
+	}
+	for _, p := range []string{"/usr/bin/pbrun", "/usr/local/bin/pbrun", "/usr/sbin/pbrun"} {
+		if info, err := os.Stat(p); err == nil && !info.IsDir() {
+			return "pbrun"
+		}
+	}
+	return ""
 }
 
 // Cleanup has nothing to do on Linux: the package manager replaced the file.

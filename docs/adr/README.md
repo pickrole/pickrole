@@ -29,5 +29,6 @@ decision changes, a new ADR supersedes it ([0001](0001-record-architecture-decis
 | [0021](0021-pinned-go-toolchain.md) | Pinned Go toolchain, and vulnerability checks on the binaries | accepted |
 | [0022](0022-several-maven-servers.md) | Several Maven servers, detected from settings.xml | accepted |
 | [0023](0023-automatic-renewal.md) | Automatic renewal of the active profile | accepted |
-| [0024](0024-updates-from-the-app.md) | New-version notice and updates from the app | accepted, amended by 0025 |
+| [0024](0024-updates-from-the-app.md) | New-version notice and updates from the app | accepted, amended by 0025 and 0026 |
 | [0025](0025-update-notice-in-about.md) | The new-version notice lives in About | accepted |
+| [0026](0026-updates-with-pbrun.md) | Updates on machines that elevate through pbrun | accepted |
