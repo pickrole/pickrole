@@ -41,9 +41,10 @@
     api.SetLanguage(loc)
   })
 
-  // Theme: "system" follows the OS; otherwise force light or dark.
+  // Theme: dark by default (also while the config loads); "system" follows
+  // the OS.
   $effect(() => {
-    const theme = overview?.config.preferences.theme ?? 'system'
+    const theme = overview?.config.preferences.theme ?? 'dark'
     if (theme === 'system') delete document.documentElement.dataset.theme
     else document.documentElement.dataset.theme = theme
   })

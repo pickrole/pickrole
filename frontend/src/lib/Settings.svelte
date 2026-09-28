@@ -290,10 +290,6 @@
               {#each regions as r (r)}<option value={r}>{r}</option>{/each}
             </select>
           </label>
-          <label class="flex flex-col gap-1.5">
-            <span class={label}>{t('settings.repository')}</span>
-            <input class={input} bind:value={cfg.codeArtifact.repository} placeholder={t('settings.repositoryPlaceholder')} />
-          </label>
         </div>
         <div class="flex flex-col gap-2">
           <span class={label}>{t('settings.tools')}</span>
@@ -422,9 +418,9 @@
       <label class="flex items-center gap-4">
         <span class="grow text-sm">{t('settings.theme')}</span>
         <select class="{input} w-40 font-sans" bind:value={cfg.preferences.theme}>
-          <option value="system">{t('settings.theme.system')}</option>
           <option value="dark">{t('settings.theme.dark')}</option>
           <option value="light">{t('settings.theme.light')}</option>
+          <option value="system">{t('settings.theme.system')}</option>
         </select>
       </label>
       <label class="flex items-center gap-4">

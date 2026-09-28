@@ -126,8 +126,6 @@ export const en = {
   'settings.domainOwner': 'Domain owner account',
   'settings.domainOwnerPlaceholder': '[ACCOUNT ID]',
   'settings.region': 'Region',
-  'settings.repository': 'Repository',
-  'settings.repositoryPlaceholder': '[REPOSITORY]',
   'settings.tools': 'Tools to set up',
   'settings.soon': 'Coming soon',
   'settings.mavenServerIds': 'Maven · server IDs',

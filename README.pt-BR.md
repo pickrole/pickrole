@@ -42,4 +42,4 @@ Prefere baixar, conferir e instalar pelo terminal, ou pedir isso a um assistente
 2. Autorize no navegador, conferindo o código que o PickRole mostra.
 3. Escolha a conta e o perfil. Pronto: qualquer terminal já usa as credenciais.
 
-O idioma segue o do sistema e pode ser trocado em **Configurações → Preferências → Idioma**.
+O tema é escuro por padrão, e o idioma segue o do sistema; os dois mudam em **Configurações → Preferências**.

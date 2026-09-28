@@ -7,6 +7,10 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- The theme is dark by default (it followed the system before). Light and "Same as system" are still in
+  **Settings → Preferences → Theme**, and configs that already chose one keep it.
+- The CodeArtifact **Repository** field is gone: nothing used it, since the token depends only on the domain, owner
+  account and region. The "Pick up where you left off" and "Recent" headings match the account list.
 - The account list headings (Favorites, All accounts) stand out more: stronger color, the number of accounts, a
   divider, and a star for favorites.
 - Building from source needs Go 1.26 or later, required by the updated `golang.org/x/net`.

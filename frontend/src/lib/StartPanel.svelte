@@ -30,7 +30,7 @@
 
 <main class="flex grow flex-col gap-3.5 px-7 py-7">
   {#if last}
-    <span class="text-[11px] font-semibold tracking-[0.08em] text-faint uppercase">{t('start.continue')}</span>
+    <span class="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t('start.continue')}</span>
     <button
       class="flex w-full items-center gap-3.5 rounded-xl border px-[18px] py-4 text-left {last.production
         ? 'border-prod bg-prod-card'
@@ -62,7 +62,7 @@
     </button>
 
     {#if others.length > 0}
-      <span class="pt-2.5 text-[11px] font-semibold tracking-[0.08em] text-faint uppercase">{t('start.recent')}</span>
+      <span class="pt-2.5 text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t('start.recent')}</span>
       {#each others as r (r.accountId + r.role)}
         <button
           class="flex w-full items-center gap-2.5 rounded-[10px] border border-line bg-surface px-4 py-3 text-left hover:border-line-strong"
