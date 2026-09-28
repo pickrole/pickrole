@@ -153,6 +153,12 @@ export const ptBR: Messages = {
   'settings.recommended': '(recomendado)',
   'settings.profileNamed': 'Um perfil por conta e role',
   'settings.useAwsProfile': '(use com AWS_PROFILE)',
+  'settings.profileFormat': 'Nome do perfil',
+  'settings.profileFormatNote':
+    'Use {account} (nome da conta), {accountId} e {role}. Siga os nomes que os seus scripts já usam, como {accountId}_{role}.',
+  'settings.profileFormatExample': 'Para platform-dev (111122223333) e Developer:',
+  'settings.alsoDefault': 'Gravar também no perfil default',
+  'settings.alsoDefaultNote': 'Para ferramentas e scripts que não definem AWS_PROFILE.',
   'settings.autoRenew': 'Renovar o perfil ativo automaticamente',
   'settings.autoRenewNote':
     'Com o PickRole aberto, as credenciais e o token do CodeArtifact são renovados alguns minutos antes de expirar, enquanto a sessão SSO durar.',

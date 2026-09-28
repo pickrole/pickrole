@@ -19,11 +19,15 @@ PickRole writes the credentials to the files AWS tools already read on their own
 
 | What | Where |
 | --- | --- |
-| Temporary credentials | `~/.aws/credentials`, in the `default` profile or in one named profile per account and role |
+| Temporary credentials | `~/.aws/credentials`, in the `default` profile or in one named profile per account and role (optionally also in `default`) |
 | CodeArtifact token | `~/.m2/settings.xml`, only in the `<server>` entries with the configured IDs |
 | SSO session | `~/.aws/sso/cache`, in the same format as the AWS CLI |
 
 Switch accounts in PickRole and every terminal uses the new one on its next command.
+
+Scripts that pick a profile by name keep working: **Settings → Preferences** names the profiles with `{account}`,
+`{accountId}` and `{role}` (`{accountId}_{role}` gives `111122223333_Developer`), and can also write the same
+credentials to `default`.
 
 ## Features
 

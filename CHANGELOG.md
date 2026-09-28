@@ -5,6 +5,13 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Profile names follow a format in **Settings → Preferences**, with `{account}`, `{accountId}` and `{role}`, so the
+  profiles scripts already use (such as `111122223333_Developer`) get the fresh credentials. The default stays
+  `{account}.{role}`. **Also write to the default profile** writes the same credentials to `[default]`, for tools and
+  scripts that don't set `AWS_PROFILE`.
+
 ## [0.2.0-beta.5] - 2026-09-28
 
 Install this version by hand (see the README); from here on, PickRole offers each new version itself.

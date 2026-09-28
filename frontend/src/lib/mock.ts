@@ -24,7 +24,7 @@ let config: Config = {
     },
   },
   proxy: { mode: 'system', url: '', noProxy: '' },
-  preferences: { profileMode: 'default', autoRenew: true, checkUpdates: true, theme: 'dark', language: 'system', prodPattern: '' },
+  preferences: { profileMode: 'default', profileFormat: '{account}.{role}', alsoDefault: false, autoRenew: true, checkUpdates: true, theme: 'dark', language: 'system', prodPattern: '' },
 }
 
 // The backend decides which roles are read-only (config.IsReadOnlyRole); the mock only has ReadOnly.

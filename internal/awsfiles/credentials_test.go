@@ -83,8 +83,14 @@ func TestUpsertProfileWritesPrivateFile(t *testing.T) {
 }
 
 func TestProfileName(t *testing.T) {
-	if got := ProfileName("platform dev", "Admin/Full"); got != "platform-dev.Admin-Full" {
-		t.Errorf("got %q", got)
+	for format, want := range map[string]string{
+		DefaultProfileFormat:               "platform-dev.Admin-Full",
+		"{accountId}_{role}":               "111122223333_Admin-Full",
+		"aws-{account}-{accountId}-{role}": "aws-platform-dev-111122223333-Admin-Full",
+	} {
+		if got := ProfileName(format, "platform dev", "111122223333", "Admin/Full"); got != want {
+			t.Errorf("%s: got %q, want %q", format, got, want)
+		}
 	}
 }
 

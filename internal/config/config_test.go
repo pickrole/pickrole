@@ -322,3 +322,27 @@ func TestThemeDefaultAndRemovedFields(t *testing.T) {
 		t.Errorf("removed fields written back:\n%s", data)
 	}
 }
+
+func TestValidateProfileFormat(t *testing.T) {
+	for format, ok := range map[string]bool{
+		"{account}.{role}":                    true,
+		"{accountId}_{role}":                  true,
+		"prefix-{account}-{accountId}.{role}": true,
+		"{role}":                              false, // not unique per account
+		"{account}":                           false, // not unique per role
+		"{accountId} {role}":                  false,
+		"{accountId}]_{role}":                 false,
+		"{acount}_{role}":                     false,
+	} {
+		c := validConfig()
+		c.Preferences.ProfileFormat = format
+		if err := c.Validate(); (err == nil) != ok {
+			t.Errorf("%q: accepted=%v, want %v", format, err == nil, ok)
+		}
+	}
+	// Configs from before the setting keep today's names.
+	cfg, err := Decode([]byte(`{"sso":{"startUrl":"https://example.awsapps.com/start","region":"us-east-1"},"preferences":{"profileMode":"named"}}`))
+	if err != nil || cfg.Preferences.ProfileFormat != "{account}.{role}" || cfg.Preferences.AlsoDefault {
+		t.Errorf("defaults: %+v, %v", cfg.Preferences, err)
+	}
+}
