@@ -9,7 +9,7 @@ Thanks for your interest! Before a big change, open an issue to talk it through.
 
 ## Setup
 
-Requirements: Go 1.25+ (the `toolchain` line in `go.mod` makes Go download the version releases use), Node 22+ and the [Wails CLI](https://wails.io) v2.16.
+Requirements: Go 1.26+ (the `toolchain` line in `go.mod` makes Go download the version releases use), Node 22+ and the [Wails CLI](https://wails.io) v2.16.
 
 - **Linux**: also the GTK and WebKit development libraries: `gtk3-devel webkit2gtk3-devel` on RHEL,
   `gtk3-devel webkit2gtk4.1-devel` on Fedora, `libgtk-3-dev libwebkit2gtk-4.1-dev` on Debian/Ubuntu. With

@@ -6,7 +6,7 @@ Reference versions as of `v0.1.0`. The exact ones are in `go.mod` and `frontend/
 
 | Layer | Technology | Why |
 |---|---|---|
-| Backend language | **Go** (code needs 1.25+; builds use the toolchain pinned in `go.mod`) | A single binary with no runtime to install; the official AWS SDK; builds for Linux and Windows. [ADR 0021](adr/0021-pinned-go-toolchain.md) |
+| Backend language | **Go** (code needs 1.26+; builds use the toolchain pinned in `go.mod`) | A single binary with no runtime to install; the official AWS SDK; builds for Linux and Windows. [ADR 0021](adr/0021-pinned-go-toolchain.md) |
 | Desktop | **Wails v2.16** | Native window using the system webview (WebKitGTK on Linux, WebView2 on Windows): a ~15 MB binary, no bundled browser. [ADR 0003](adr/0003-wails-with-system-webview.md) |
 | AWS | **AWS SDK for Go v2**: `sso`, `ssooidc`, `codeartifact` | Official clients; endpoints can be swapped with `AWS_ENDPOINT_URL*` for tests. |
 | Proxy | `github.com/mattn/go-ieproxy`, `golang.org/x/net/http/httpproxy` | The system proxy on Windows (PAC included); `NO_PROXY`-style matching for the manual and GNOME proxies. On Linux, the GNOME settings come from `gsettings`. [ADR 0012](adr/0012-proxy.md), [ADR 0020](adr/0020-proxy-settings-and-gnome.md) |

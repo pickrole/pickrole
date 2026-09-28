@@ -5,6 +5,12 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- The account list headings (Favorites, All accounts) stand out more: stronger color, the number of accounts, a
+  divider, and a star for favorites.
+- Building from source needs Go 1.26 or later, required by the updated `golang.org/x/net`.
+
 ## [0.2.0-beta.4] - 2026-09-27
 
 ### Added
