@@ -115,7 +115,7 @@
             <dd class="truncate font-mono text-[12.5px]" title={d.value}>{d.value}</dd>
           {/each}
         </dl>
-        <h3 class="mt-4 mb-1.5 text-[11px] font-semibold tracking-[0.08em] text-faint uppercase">{t('about.files')}</h3>
+        <h3 class="mt-4 mb-1.5 text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t('about.files')}</h3>
         <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-1.5">
           {#each about.files as f (f.kind)}
             <dt class="text-faint">{t(`about.file.${f.kind}`)}</dt>

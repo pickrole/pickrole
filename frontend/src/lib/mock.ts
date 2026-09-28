@@ -16,7 +16,6 @@ let config: Config = {
     domain: 'example',
     domainOwner: '111122223333',
     region: 'us-east-1',
-    repository: 'releases',
     tools: {
       maven: { enabled: true, serverIds: ['codeartifact'], settingsPath: '~/.m2/settings.xml' },
       gradle: false,
@@ -25,7 +24,7 @@ let config: Config = {
     },
   },
   proxy: { mode: 'system', url: '', noProxy: '' },
-  preferences: { profileMode: 'default', autoRenew: true, startMinimized: false, theme: 'system', language: 'system', prodPattern: '' },
+  preferences: { profileMode: 'default', autoRenew: true, theme: 'dark', language: 'system', prodPattern: '' },
 }
 
 // The backend decides which roles are read-only (config.IsReadOnlyRole); the mock only has ReadOnly.

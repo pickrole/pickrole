@@ -302,3 +302,23 @@ func TestMavenServerIDs(t *testing.T) {
 		t.Errorf("valid list rejected: %v", err)
 	}
 }
+
+// New configs are dark; configs written before still load, including the
+// removed repository and startMinimized fields, and keep their theme.
+func TestThemeDefaultAndRemovedFields(t *testing.T) {
+	if Default().Preferences.Theme != "dark" {
+		t.Errorf("default theme = %q, want dark", Default().Preferences.Theme)
+	}
+	cfg, err := Decode([]byte(`{"sso":{"startUrl":"https://example.awsapps.com/start","region":"us-east-1"},
+		"codeArtifact":{"repository":"releases"},"preferences":{"startMinimized":true,"theme":"system"}}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Preferences.Theme != "system" {
+		t.Errorf("a saved theme must be kept, got %q", cfg.Preferences.Theme)
+	}
+	data, _ := Encode(cfg)
+	if strings.Contains(string(data), "repository") || strings.Contains(string(data), "startMinimized") {
+		t.Errorf("removed fields written back:\n%s", data)
+	}
+}

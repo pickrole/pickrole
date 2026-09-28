@@ -2,8 +2,8 @@
 
 ## Colors
 
-Every color is a token in `frontend/src/app.css`, with a dark theme (default) and a light one, following the system or
-the choice in the settings. **Each color has one meaning**
+Every color is a token in `frontend/src/app.css`, with a dark theme (the default) and a light one; the settings can also
+follow the system. **Each color has one meaning**
 ([ADR 0017](adr/0017-colors-with-one-meaning.md)):
 
 | Token | Dark | Light | Meaning |

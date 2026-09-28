@@ -63,17 +63,15 @@ type CodeArtifact struct {
 	Domain      string `json:"domain"`
 	DomainOwner string `json:"domainOwner"`
 	Region      string `json:"region"`
-	Repository  string `json:"repository"`
 	Tools       Tools  `json:"tools"`
 }
 
 type Preferences struct {
-	ProfileMode    string `json:"profileMode"`
-	AutoRenew      bool   `json:"autoRenew"`
-	StartMinimized bool   `json:"startMinimized"`
-	Theme          string `json:"theme"`    // system | light | dark
-	Language       string `json:"language"` // system | en | pt-BR
-	ProdPattern    string `json:"prodPattern"`
+	ProfileMode string `json:"profileMode"`
+	AutoRenew   bool   `json:"autoRenew"`
+	Theme       string `json:"theme"`    // dark (default) | light | system
+	Language    string `json:"language"` // system | en | pt-BR
+	ProdPattern string `json:"prodPattern"`
 }
 
 // Proxy is how PickRole reaches AWS. Mode is awsenv.ProxySystem (the
@@ -118,7 +116,7 @@ func Default() Config {
 		Preferences: Preferences{
 			ProfileMode: ProfileDefault,
 			AutoRenew:   true,
-			Theme:       "system",
+			Theme:       "dark",
 			Language:    "system",
 			ProdPattern: DefaultProdPattern,
 		},
@@ -233,7 +231,6 @@ func (c *Config) fillDefaults() {
 	c.SSO.StartURL = strings.TrimSpace(c.SSO.StartURL)
 	c.CodeArtifact.Domain = strings.TrimSpace(c.CodeArtifact.Domain)
 	c.CodeArtifact.DomainOwner = strings.TrimSpace(c.CodeArtifact.DomainOwner)
-	c.CodeArtifact.Repository = strings.TrimSpace(c.CodeArtifact.Repository)
 	c.CodeArtifact.Tools.Maven.SettingsPath = strings.TrimSpace(c.CodeArtifact.Tools.Maven.SettingsPath)
 }
 

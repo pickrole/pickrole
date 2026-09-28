@@ -36,14 +36,12 @@ export interface CodeArtifact {
   domain: string
   domainOwner: string
   region: string
-  repository: string
   tools: Tools
 }
 
 export interface Preferences {
   profileMode: ProfileMode
   autoRenew: boolean
-  startMinimized: boolean
   theme: Theme
   /** 'system' follows the OS language. */
   language: 'system' | 'en' | 'pt-BR'

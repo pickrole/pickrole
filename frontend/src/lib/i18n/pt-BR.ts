@@ -118,8 +118,6 @@ export const ptBR: Messages = {
   'settings.domainOwner': 'Conta dona do domínio',
   'settings.domainOwnerPlaceholder': '[ID DA CONTA]',
   'settings.region': 'Região',
-  'settings.repository': 'Repositório',
-  'settings.repositoryPlaceholder': '[REPOSITÓRIO]',
   'settings.tools': 'Ferramentas a configurar',
   'settings.soon': 'Em breve',
   'settings.mavenServerIds': 'Maven · IDs dos servers',

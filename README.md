@@ -36,7 +36,8 @@ Switch accounts in PickRole and every terminal uses the new one on its next comm
 - Warning when the session is about to expire.
 - Shareable configuration: one person sets it up, exports a `.json`, and the rest of the team imports it.
 - Detects an existing `sso-session` in `~/.aws/config`.
-- Light and dark themes, English and Brazilian Portuguese, following the system by default.
+- Dark theme by default, with light and follow-the-system options; English and Brazilian Portuguese, following the
+  system language by default.
 
 ## Install
 
@@ -152,10 +153,9 @@ instead) and proxies that require NTLM or Kerberos authentication (use a local p
     "domain": "[DOMAIN]",
     "domainOwner": "[ACCOUNT ID]",
     "region": "us-east-1",
-    "repository": "[REPOSITORY]",
     "tools": { "maven": { "enabled": true, "serverIds": ["codeartifact"], "settingsPath": "~/.m2/settings.xml" } }
   },
-  "preferences": { "profileMode": "default", "theme": "system", "language": "system" }
+  "preferences": { "profileMode": "default", "theme": "dark", "language": "system" }
 }
 ```
 
@@ -166,7 +166,7 @@ hand, everything comes from the CodeArtifact repository URL:
 
 ```
 https://my-domain-111122223333.d.codeartifact.us-east-1.amazonaws.com/maven/releases/
-        └─ domain ─┘ └─ owner ──┘                └ region ┘          └ repository ┘
+        └─ domain ─┘ └─ owner ──┘                └ region ┘
 ```
 
 The domain can contain hyphens; the owner account is the 12 digits after the last one.
