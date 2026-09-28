@@ -368,3 +368,45 @@ func TestAutoRenewActiveProfile(t *testing.T) {
 		t.Errorf("renew-error sent %d times, want 1: %v", n, p.events)
 	}
 }
+
+// Scripts that use profiles like "<account id>_<role>" get the credentials
+// with the matching format, and AlsoDefault writes [default] as well.
+func TestProfileFormatAndAlsoDefault(t *testing.T) {
+	dir := isolate(t)
+	srv := httptest.NewServer(fakeaws.New(fakeaws.Options{AutoApprove: true, PollInterval: time.Second}))
+	defer srv.Close()
+	t.Setenv("AWS_ENDPOINT_URL", srv.URL)
+
+	svc, start := New(Build{Version: "test"})
+	start(context.Background(), &fakePlatform{})
+	cfg := svc.DefaultConfig()
+	cfg.SSO.StartURL = "https://pickrole-fake.awsapps.com/start"
+	cfg.Preferences.ProfileMode = config.ProfileNamed
+	cfg.Preferences.ProfileFormat = "{accountId}_{role}"
+	cfg.Preferences.AlsoDefault = true
+	if _, err := svc.SaveConfig(cfg); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := svc.StartLogin(); err != nil {
+		t.Fatal(err)
+	}
+	o, err := svc.WaitLogin()
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := o.Accounts[0]
+	res, err := svc.LoadProfile(a.ID, a.Roles[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := a.ID + "_" + a.Roles[0]
+	if res.Active.Profile != want {
+		t.Errorf("active profile = %q, want %q", res.Active.Profile, want)
+	}
+	creds := readFile(t, filepath.Join(dir, ".aws", "credentials"))
+	for _, section := range []string{"[" + want + "]", "[default]"} {
+		if !strings.Contains(creds, section) {
+			t.Errorf("credentials file has no %s:\n%s", section, creds)
+		}
+	}
+}

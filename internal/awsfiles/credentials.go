@@ -54,12 +54,22 @@ func (c Credentials) Validate() error {
 
 var profileNameRe = regexp.MustCompile(`[^A-Za-z0-9_.-]+`)
 
-// ProfileName builds a named profile such as "platform-dev.Developer".
-func ProfileName(accountName, role string) string {
+// DefaultProfileFormat names profiles like "platform-dev.Developer".
+const DefaultProfileFormat = "{account}.{role}"
+
+// ProfileName builds a named profile from format, where {account} is the
+// account name, {accountId} its 12-digit id and {role} the role:
+// "{accountId}_{role}" gives "111122223333_Developer". Each value is cleaned
+// to letters, digits, dots, hyphens and underscores.
+func ProfileName(format, accountName, accountID, role string) string {
 	clean := func(s string) string {
 		return strings.Trim(profileNameRe.ReplaceAllString(s, "-"), "-")
 	}
-	return clean(accountName) + "." + clean(role)
+	return strings.NewReplacer(
+		"{accountId}", clean(accountID),
+		"{account}", clean(accountName),
+		"{role}", clean(role),
+	).Replace(format)
 }
 
 // UpsertProfile writes creds into the [profile] section of the credentials

@@ -161,6 +161,12 @@ export const en = {
   'settings.recommended': '(recommended)',
   'settings.profileNamed': 'One profile per account and role',
   'settings.useAwsProfile': '(use with AWS_PROFILE)',
+  'settings.profileFormat': 'Profile name',
+  'settings.profileFormatNote':
+    'Use {account} (account name), {accountId} and {role}. Match the names your scripts already use, such as {accountId}_{role}.',
+  'settings.profileFormatExample': 'For platform-dev (111122223333) and Developer:',
+  'settings.alsoDefault': 'Also write to the default profile',
+  'settings.alsoDefaultNote': 'For tools and scripts that don\'t set AWS_PROFILE.',
   'settings.autoRenew': 'Renew the active profile automatically',
   'settings.autoRenewNote':
     'While PickRole is open, the credentials and the CodeArtifact token are renewed a few minutes before they expire, as long as the SSO session lasts.',

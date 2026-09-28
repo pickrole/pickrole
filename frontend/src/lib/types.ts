@@ -57,6 +57,10 @@ export interface CodeArtifact {
 
 export interface Preferences {
   profileMode: ProfileMode
+  /** Named mode: {account}, {accountId} and {role}, e.g. "{accountId}_{role}". */
+  profileFormat: string
+  /** Named mode: also write [default]. */
+  alsoDefault: boolean
   autoRenew: boolean
   /** Look for a newer release on GitHub. */
   checkUpdates: boolean

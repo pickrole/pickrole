@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/pickrole/pickrole/internal/awsenv"
+	"github.com/pickrole/pickrole/internal/awsfiles"
 	"github.com/pickrole/pickrole/internal/fsutil"
 	"github.com/pickrole/pickrole/internal/i18n"
 )
@@ -68,7 +69,13 @@ type CodeArtifact struct {
 
 type Preferences struct {
 	ProfileMode string `json:"profileMode"`
-	AutoRenew   bool   `json:"autoRenew"`
+	// ProfileFormat names the profiles in the named mode, with {account},
+	// {accountId} and {role} (see awsfiles.ProfileName).
+	ProfileFormat string `json:"profileFormat"`
+	// AlsoDefault also writes the credentials to [default] in the named
+	// mode, for tools and scripts that don't set AWS_PROFILE.
+	AlsoDefault bool `json:"alsoDefault"`
+	AutoRenew   bool `json:"autoRenew"`
 	// CheckUpdates looks for a newer release on GitHub (docs/adr/0024).
 	CheckUpdates bool   `json:"checkUpdates"`
 	Theme        string `json:"theme"`    // dark (default) | light | system
@@ -116,12 +123,13 @@ func Default() Config {
 		},
 		Proxy: Proxy{Mode: awsenv.ProxySystem},
 		Preferences: Preferences{
-			ProfileMode:  ProfileDefault,
-			AutoRenew:    true,
-			CheckUpdates: true,
-			Theme:        "dark",
-			Language:     "system",
-			ProdPattern:  DefaultProdPattern,
+			ProfileMode:   ProfileDefault,
+			ProfileFormat: awsfiles.DefaultProfileFormat,
+			AutoRenew:     true,
+			CheckUpdates:  true,
+			Theme:         "dark",
+			Language:      "system",
+			ProdPattern:   DefaultProdPattern,
 		},
 	}
 }
@@ -203,6 +211,10 @@ func (c *Config) fillDefaults() {
 	if c.Preferences.ProfileMode == "" {
 		c.Preferences.ProfileMode = d.Preferences.ProfileMode
 	}
+	c.Preferences.ProfileFormat = strings.TrimSpace(c.Preferences.ProfileFormat)
+	if c.Preferences.ProfileFormat == "" {
+		c.Preferences.ProfileFormat = d.Preferences.ProfileFormat
+	}
 	if c.Preferences.Language == "" {
 		c.Preferences.Language = d.Preferences.Language
 	}
@@ -254,6 +266,8 @@ var (
 	accountIDRe = regexp.MustCompile(`^\d{12}$`)
 	regionRe    = regexp.MustCompile(`^[a-z]{2}(-[a-z]+)+-\d$`)
 	serverIDRe  = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
+	// Literal text allowed in a profile name, plus the placeholders.
+	profileFormatRe = regexp.MustCompile(`^([A-Za-z0-9._-]|\{account\}|\{accountId\}|\{role\})+$`)
 )
 
 // ValidRegion reports whether region looks like an AWS region (us-east-1).
@@ -274,6 +288,10 @@ func (c Config) Validate() error {
 	case ProfileDefault, ProfileNamed:
 	default:
 		return i18n.New("config.profile_mode", c.Preferences.ProfileMode)
+	}
+	if f := c.Preferences.ProfileFormat; !profileFormatRe.MatchString(f) || !strings.Contains(f, "{role}") ||
+		!strings.Contains(f, "{account}") && !strings.Contains(f, "{accountId}") {
+		return i18n.New("config.profile_format", f)
 	}
 	switch c.Preferences.Language {
 	case "system", string(i18n.English), string(i18n.Portuguese):

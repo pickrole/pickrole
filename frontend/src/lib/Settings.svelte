@@ -160,6 +160,18 @@
     }
   }
 
+  // Mirrors awsfiles.ProfileName, to show the name before saving.
+  function profilePreview(format: string): string {
+    const clean = (s: string) => s.replace(/[^A-Za-z0-9_.-]+/g, '-').replace(/^-+|-+$/g, '')
+    return format
+      .split('{accountId}')
+      .join(clean('111122223333'))
+      .split('{account}')
+      .join(clean('platform-dev'))
+      .split('{role}')
+      .join(clean('Developer'))
+  }
+
   function useDetected() {
     if (detected) cfg.sso = { ...detected }
   }
@@ -413,6 +425,26 @@
           {t('settings.profileNamed')}
           <span class="text-[13px] text-faint">{t('settings.useAwsProfile')}</span>
         </label>
+        {#if cfg.preferences.profileMode === 'named'}
+          <div class="ml-[26px] flex flex-col gap-3 rounded-[10px] border border-line bg-surface px-4 py-3.5">
+            <label class="flex flex-col gap-1.5">
+              <span class={label}>{t('settings.profileFormat')}</span>
+              <input class="{input} bg-bg" bind:value={cfg.preferences.profileFormat} placeholder="{'{account}.{role}'}" />
+              <span class="text-xs text-faint">{t('settings.profileFormatNote')}</span>
+              <span class="text-xs text-muted"
+                >{t('settings.profileFormatExample')}
+                <span class="font-mono text-fg">[{profilePreview(cfg.preferences.profileFormat)}]</span></span
+              >
+            </label>
+            <div class="flex items-center gap-4">
+              <div class="flex grow flex-col gap-[3px]">
+                <span class="text-sm">{t('settings.alsoDefault')}</span>
+                <span class="text-xs text-faint">{t('settings.alsoDefaultNote')}</span>
+              </div>
+              {@render toggle(cfg.preferences.alsoDefault, t('settings.alsoDefault'), () => (cfg.preferences.alsoDefault = !cfg.preferences.alsoDefault))}
+            </div>
+          </div>
+        {/if}
       </fieldset>
       <div class="h-px bg-line"></div>
       <div class="flex items-center gap-4">

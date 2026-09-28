@@ -549,13 +549,20 @@ func (s *Service) loadProfile(accountID, role string, used bool) (LoadResult, er
 		return LoadResult{}, wrap(err)
 	}
 
-	profile := "default"
-	if cfg.Preferences.ProfileMode == config.ProfileNamed {
-		profile = awsfiles.ProfileName(account.Name, role)
+	// The first profile is the one reported as active.
+	profiles := []string{"default"}
+	if p := cfg.Preferences; p.ProfileMode == config.ProfileNamed {
+		profiles = []string{awsfiles.ProfileName(p.ProfileFormat, account.Name, account.ID, role)}
+		if p.AlsoDefault {
+			profiles = append(profiles, "default")
+		}
 	}
+	profile := profiles[0]
 	credPath := awsfiles.CredentialsPath()
-	if err := awsfiles.UpsertProfile(credPath, profile, creds); err != nil {
-		return LoadResult{}, i18n.Wrap("app.writing_credentials", err)
+	for _, pr := range profiles {
+		if err := awsfiles.UpsertProfile(credPath, pr, creds); err != nil {
+			return LoadResult{}, i18n.Wrap("app.writing_credentials", err)
+		}
 	}
 
 	res := LoadResult{
@@ -566,7 +573,7 @@ func (s *Service) loadProfile(accountID, role string, used bool) (LoadResult, er
 			Profile:     profile,
 			ExpiresAt:   creds.Expiration,
 		},
-		Written:  []string{homeRelative(credPath) + " [" + profile + "]"},
+		Written:  []string{homeRelative(credPath) + " [" + strings.Join(profiles, "], [") + "]"},
 		Warnings: []string{},
 	}
 
