@@ -40,7 +40,8 @@ scripts\mock-aws.ps1 -Build -Reset
 
 Elsewhere, run `go run ./cmd/fakeaws` and start the app with `AWS_ENDPOINT_URL=http://127.0.0.1:4599` and a separate
 `HOME`; otherwise the app writes to your real `~/.aws` and `~/.m2`. The dashboard at `http://127.0.0.1:4599/` lists the
-accounts and simulates an expired or revoked session.
+accounts and simulates an expired or revoked session. `-creds-ttl 12m` makes role credentials short-lived, to watch
+the automatic renewal (it renews under 10 minutes left).
 
 ## Before opening a pull request
 

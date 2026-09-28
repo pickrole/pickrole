@@ -56,6 +56,10 @@ The TypeScript types in `frontend/src/lib/types.ts` mirror the Go structs by han
 generates is neither used nor committed. When you change an exposed struct, update all three: the Go struct,
 `types.ts` and the mock.
 
+In the other direction, the backend sends Wails events when something changes on its own: `overview` after an
+automatic renewal and `renew-error` when one fails ([ADR 0023](adr/0023-automatic-renewal.md)). The UI listens through
+`onBackendEvent` in `api.ts`.
+
 Errors reach JavaScript as strings. The ones that need a new sign-in start with `LOGIN_REQUIRED`
 (`app.LoginRequired`); the UI detects them with `isLoginRequired()`, shows the sign-in and retries the pending action
 afterwards.
@@ -119,6 +123,9 @@ sequenceDiagram
   end
   App-->>UI: LoadResult (files written, warnings)
 ```
+
+While PickRole is open, the same load runs again in the background shortly before the credentials expire, after
+renewing the SSO session if needed ([ADR 0023](adr/0023-automatic-renewal.md)).
 
 ## Files PickRole reads and writes
 

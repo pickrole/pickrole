@@ -18,6 +18,7 @@ import (
 func main() {
 	addr := flag.String("addr", "127.0.0.1:4599", "address to listen on")
 	autoApprove := flag.Bool("auto-approve", false, "approve sign-ins without the browser page")
+	credsTTL := flag.Duration("creds-ttl", time.Hour, "how long role credentials last; short values show automatic renewal")
 	allowRemote := flag.Bool("allow-remote", false, "allow listening outside loopback (no authentication: anyone on the network can use it)")
 	flag.Parse()
 
@@ -28,7 +29,7 @@ func main() {
 		}
 	}
 
-	srv := fakeaws.New(fakeaws.Options{AutoApprove: *autoApprove, Log: os.Stdout})
+	srv := fakeaws.New(fakeaws.Options{AutoApprove: *autoApprove, CredentialsTTL: *credsTTL, Log: os.Stdout})
 	base := "http://" + *addr
 	fmt.Printf("PickRole fake AWS at %s\n", base)
 	fmt.Printf("Point PickRole at it with AWS_ENDPOINT_URL=%s\n", base)

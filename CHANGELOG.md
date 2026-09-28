@@ -5,6 +5,13 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Automatic renewal: while PickRole is open, the active profile is loaded again a few minutes before its credentials
+  expire, with a new CodeArtifact token, and the SSO session is renewed with its refresh token when needed. Terminals
+  no longer break when the role credentials expire. It doesn't change the recent list, and **Settings → Preferences**
+  can turn it off.
+
 ### Changed
 
 - The account list headings (Favorites, All accounts) stand out more: stronger color, the number of accounts, a
