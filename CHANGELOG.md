@@ -5,6 +5,10 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0-beta.5] - 2026-09-28
+
+Install this version by hand (see the README); from here on, PickRole offers each new version itself.
+
 ### Added
 
 - New-version notice and updates from the app: a badge in the header when a newer release is out. **Update now**
@@ -120,7 +124,8 @@ First release, published before this repository became public.
 - On Linux, the GNOME proxy settings aren't read: use `HTTPS_PROXY`.
 - The binaries aren't signed.
 
-[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.4...HEAD
+[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.5...HEAD
+[0.2.0-beta.5]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.4...v0.2.0-beta.5
 [0.2.0-beta.4]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.3...v0.2.0-beta.4
 [0.2.0-beta.3]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.2...v0.2.0-beta.3
 [0.2.0-beta.2]: https://github.com/pickrole/pickrole/releases/tag/v0.2.0-beta.2
