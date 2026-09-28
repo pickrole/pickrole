@@ -155,11 +155,9 @@
             </div>
           {:else}
             <div class="flex items-center gap-3">
-              <span class="grow {checkError ? 'text-prod-fg' : 'text-muted'}"
-                >{checkError || (checked ? t('about.upToDate') : '')}</span
-              >
+              <span class="grow text-muted">{checked && !checkError ? t('about.upToDate') : ''}</span>
               <button
-                class="flex h-8 items-center gap-1.5 rounded-lg border border-line px-3"
+                class="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-line px-3 whitespace-nowrap"
                 onclick={check}
                 disabled={checking}
               >
@@ -167,6 +165,11 @@
                 >{checking ? t('about.checking') : t('about.checkUpdates')}
               </button>
             </div>
+            {#if checkError}
+              <p class="mt-2 flex gap-1.5 leading-normal text-prod-fg" role="alert">
+                <span class="mt-[3px] shrink-0"><Icon name="alert" size={13} /></span>{checkError}
+              </p>
+            {/if}
           {/if}
         </div>
         <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-1.5">

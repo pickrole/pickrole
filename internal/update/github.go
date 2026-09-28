@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
@@ -13,8 +14,11 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // Doer sends HTTP requests; the AWS client of awsenv fits, so updates go
@@ -28,6 +32,9 @@ type Doer interface {
 type Source struct {
 	// ReleasesURL lists the releases (GitHub REST API).
 	ReleasesURL string
+	// FeedURL is the Atom feed of the release page, used when the API
+	// refuses (see Newer).
+	FeedURL string
 	// DownloadPrefix is the only place assets are downloaded from.
 	DownloadPrefix string
 	// RedirectHosts are where a download may be redirected to: GitHub
@@ -40,6 +47,7 @@ type Source struct {
 func GitHub(client Doer) Source {
 	return Source{
 		ReleasesURL:    "https://api.github.com/repos/pickrole/pickrole/releases?per_page=30",
+		FeedURL:        "https://github.com/pickrole/pickrole/releases.atom",
 		DownloadPrefix: "https://github.com/pickrole/pickrole/releases/download/",
 		RedirectHosts: []string{
 			"objects.githubusercontent.com",
@@ -58,6 +66,9 @@ type Release struct {
 	URL string
 	// Assets maps file names to download URLs.
 	Assets map[string]string
+	// AssetBase is set instead of Assets when the release came from the
+	// feed, which doesn't list files: see AssetURL.
+	AssetBase string
 	// Security is true when this release, or any other one between the
 	// running version and it, has a "Security" section in its notes (the
 	// CHANGELOG convention), so skipping versions doesn't hide a fix.
@@ -73,7 +84,60 @@ const (
 // Newer returns the newest release above current, or nil when there is
 // none. Pre-releases count only when current is one: people on a beta
 // get the next beta, people on a final release only final releases.
+//
+// The list comes from the GitHub API. When the API answers with an error,
+// most often 403 because GitHub limits unauthenticated calls per IP address
+// and a company network shares one, or because a proxy only lets github.com
+// through, the Atom feed of the release page is used instead: it is served
+// by github.com, like the downloads, without that limit.
 func (s Source) Newer(ctx context.Context, current Version) (*Release, error) {
+	list, err := s.listAPI(ctx)
+	var status *HTTPError
+	if errors.As(err, &status) && s.FeedURL != "" {
+		if feed, ferr := s.listFeed(ctx); ferr == nil {
+			list, err = feed, nil
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	var best *Release
+	security := false
+	for _, r := range list {
+		v, ok := ParseVersion(r.tag)
+		if !ok || r.draft || (v.Prerelease() || r.prerelease) && !current.Prerelease() {
+			continue
+		}
+		if v.Compare(current) <= 0 {
+			continue
+		}
+		security = security || r.security
+		if best != nil && v.Compare(best.Version) <= 0 {
+			continue
+		}
+		rel := &Release{Version: v, Tag: r.tag, URL: r.url, Assets: r.assets}
+		if rel.Assets == nil {
+			// The feed doesn't list the files: they are where every
+			// release keeps them, and Download checks they exist.
+			rel.AssetBase = s.DownloadPrefix + r.tag + "/"
+		}
+		best = rel
+	}
+	if best != nil {
+		best.Security = security
+	}
+	return best, nil
+}
+
+// listed is a release as the API or the feed describes it.
+type listed struct {
+	tag, url          string
+	draft, prerelease bool
+	security          bool
+	assets            map[string]string
+}
+
+func (s Source) listAPI(ctx context.Context) ([]listed, error) {
 	body, err := s.get(ctx, s.ReleasesURL, maxListing)
 	if err != nil {
 		return nil, err
@@ -92,31 +156,52 @@ func (s Source) Newer(ctx context.Context, current Version) (*Release, error) {
 	if err := json.Unmarshal(body, &list); err != nil {
 		return nil, fmt.Errorf("release list: %w", err)
 	}
-	var best *Release
-	security := false
+	out := make([]listed, 0, len(list))
 	for _, r := range list {
-		v, ok := ParseVersion(r.Tag)
-		if !ok || r.Draft || (v.Prerelease() || r.Prerelease) && !current.Prerelease() {
-			continue
-		}
-		if v.Compare(current) <= 0 {
-			continue
-		}
-		security = security || hasSecuritySection(r.Body)
-		if best != nil && v.Compare(best.Version) <= 0 {
-			continue
-		}
-		rel := &Release{Version: v, Tag: r.Tag, URL: r.URL, Assets: map[string]string{}}
+		l := listed{tag: r.Tag, url: r.URL, draft: r.Draft, prerelease: r.Prerelease,
+			security: hasSecuritySection(r.Body), assets: map[string]string{}}
 		for _, a := range r.Assets {
-			rel.Assets[a.Name] = a.URL
+			l.assets[a.Name] = a.URL
 		}
-		best = rel
+		out = append(out, l)
 	}
-	if best != nil {
-		best.Security = security
-	}
-	return best, nil
+	return out, nil
 }
+
+// listFeed reads the Atom feed of the release page. It has no drafts, and
+// pre-releases are told apart by their version (v0.2.0-beta.7).
+func (s Source) listFeed(ctx context.Context) ([]listed, error) {
+	body, err := s.get(ctx, s.FeedURL, maxListing)
+	if err != nil {
+		return nil, err
+	}
+	var feed struct {
+		Entries []struct {
+			Link struct {
+				Href string `xml:"href,attr"`
+			} `xml:"link"`
+			Content string `xml:"content"`
+		} `xml:"entry"`
+	}
+	if err := xml.Unmarshal(body, &feed); err != nil {
+		return nil, fmt.Errorf("release feed: %w", err)
+	}
+	var out []listed
+	for _, e := range feed.Entries {
+		_, tag, ok := strings.Cut(e.Link.Href, "/releases/tag/")
+		if !ok {
+			continue
+		}
+		if tag, err = url.PathUnescape(tag); err != nil || strings.ContainsAny(tag, "/?#") {
+			continue
+		}
+		out = append(out, listed{tag: tag, url: e.Link.Href, security: htmlSecurityHeading.MatchString(e.Content)})
+	}
+	return out, nil
+}
+
+// htmlSecurityHeading is hasSecuritySection for the notes as HTML (the feed).
+var htmlSecurityHeading = regexp.MustCompile(`(?i)<h[1-6][^>]*>\s*Security\s*</h[1-6]>`)
 
 // hasSecuritySection reports whether release notes have a "Security"
 // heading, as CHANGELOG.md does for security fixes (Keep a Changelog).
@@ -130,12 +215,53 @@ func hasSecuritySection(notes string) bool {
 	return false
 }
 
+// AssetURL is where the release's file name is downloaded from, or "" when
+// the release doesn't have it.
+func (r *Release) AssetURL(name string) string {
+	if u, ok := r.Assets[name]; ok {
+		return u
+	}
+	if r.AssetBase != "" {
+		return r.AssetBase + name
+	}
+	return ""
+}
+
+// HTTPError is an answer other than 200 OK, kept apart so the app can say
+// what it means (GitHub's rate limit, a proxy refusing) instead of a URL.
+type HTTPError struct {
+	Host   string
+	Status int
+	// RateLimited is true when GitHub says the limit of calls for this
+	// address is used up; Reset is when it starts over.
+	RateLimited bool
+	Reset       time.Time
+}
+
+func (e *HTTPError) Error() string {
+	if e.RateLimited {
+		return fmt.Sprintf("%s: HTTP %d, rate limit exceeded", e.Host, e.Status)
+	}
+	return fmt.Sprintf("%s: HTTP %d", e.Host, e.Status)
+}
+
+func httpError(resp *http.Response) *HTTPError {
+	e := &HTTPError{Host: resp.Request.URL.Hostname(), Status: resp.StatusCode}
+	if (e.Status == http.StatusForbidden || e.Status == http.StatusTooManyRequests) &&
+		resp.Header.Get("X-RateLimit-Remaining") == "0" {
+		e.RateLimited = true
+		if sec, err := strconv.ParseInt(resp.Header.Get("X-RateLimit-Reset"), 10, 64); err == nil {
+			e.Reset = time.Unix(sec, 0)
+		}
+	}
+	return e
+}
+
 // Download saves asset of rel in dir and checks it against the release's
 // SHA256SUMS; the file is only kept when it matches.
 func (s Source) Download(ctx context.Context, rel *Release, asset, dir string) (string, error) {
-	sumsURL, ok1 := rel.Assets["SHA256SUMS"]
-	assetURL, ok2 := rel.Assets[asset]
-	if !ok1 || !ok2 {
+	sumsURL, assetURL := rel.AssetURL("SHA256SUMS"), rel.AssetURL(asset)
+	if sumsURL == "" || assetURL == "" {
 		return "", fmt.Errorf("%s has no %s", rel.Tag, asset)
 	}
 	sums, err := s.get(ctx, sumsURL, maxSums)
@@ -177,9 +303,9 @@ func checksum(sums []byte, name string) (string, error) {
 }
 
 func (s Source) get(ctx context.Context, target string, limit int64) ([]byte, error) {
-	// The listing comes from the API; everything else only from the
-	// project's own release downloads.
-	if target != s.ReleasesURL && !strings.HasPrefix(target, s.DownloadPrefix) {
+	// The listing comes from the API or the feed; everything else only
+	// from the project's own release downloads.
+	if target != s.ReleasesURL && (target != s.FeedURL || s.FeedURL == "") && !strings.HasPrefix(target, s.DownloadPrefix) {
 		return nil, fmt.Errorf("refusing to download from %s", target)
 	}
 	// The AWS client that carries the proxy doesn't follow redirects, and
@@ -209,7 +335,7 @@ func (s Source) get(ctx context.Context, target string, limit int64) ([]byte, er
 		}
 		defer resp.Body.Close() //nolint:errcheck // read only
 		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("%s: HTTP %d", target, resp.StatusCode)
+			return nil, httpError(resp)
 		}
 		data, err := io.ReadAll(io.LimitReader(resp.Body, limit+1))
 		if err != nil {
