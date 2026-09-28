@@ -422,6 +422,13 @@
         </div>
         {@render toggle(cfg.preferences.autoRenew, t('settings.autoRenew'), () => (cfg.preferences.autoRenew = !cfg.preferences.autoRenew))}
       </div>
+      <div class="flex items-center gap-4">
+        <div class="flex grow flex-col gap-[3px]">
+          <span class="text-sm">{t('settings.checkUpdates')}</span>
+          <span class="text-xs text-faint">{t('settings.checkUpdatesNote')}</span>
+        </div>
+        {@render toggle(cfg.preferences.checkUpdates, t('settings.checkUpdates'), () => (cfg.preferences.checkUpdates = !cfg.preferences.checkUpdates))}
+      </div>
       <label class="flex items-center gap-4">
         <span class="grow text-sm">{t('settings.theme')}</span>
         <select class="{input} w-40 font-sans" bind:value={cfg.preferences.theme}>

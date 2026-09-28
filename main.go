@@ -7,6 +7,7 @@ import (
 	"embed"
 	"errors"
 	"log"
+	"os"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -17,6 +18,7 @@ import (
 	"github.com/pickrole/pickrole/internal/app"
 	"github.com/pickrole/pickrole/internal/clipboard"
 	"github.com/pickrole/pickrole/internal/i18n"
+	"github.com/pickrole/pickrole/internal/update"
 )
 
 // Set at build time with -ldflags "-X main.version=… -X main.commit=… -X main.buildDate=…"
@@ -56,6 +58,8 @@ func (p platform) SetSecretClipboard(text string) error {
 
 func (p platform) Emit(event string, data ...any) { runtime.EventsEmit(p.ctx, event, data...) }
 
+func (p platform) Quit() { runtime.Quit(p.ctx) }
+
 func (p platform) OpenFile(title string) (string, error) {
 	return runtime.OpenFileDialog(p.ctx, runtime.OpenDialogOptions{Title: title, Filters: jsonFilter()})
 }
@@ -69,6 +73,11 @@ func (p platform) SaveFile(title, defaultName string) (string, error) {
 }
 
 func main() {
+	// After an update, the new version waits for the old one to exit (single
+	// instance), and removes what the old one left behind.
+	update.WaitForPrevious(os.Args)
+	update.Cleanup()
+
 	svc, start := app.New(app.Build{Version: version, Commit: commit, Date: buildDate})
 	var appCtx context.Context
 

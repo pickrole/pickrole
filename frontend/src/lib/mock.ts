@@ -1,4 +1,4 @@
-import type { About, Account, Config, ConnectionTest, DeviceAuth, LoadResult, MavenDetection, Overview, Recent } from './types'
+import type { About, Account, Config, ConnectionTest, DeviceAuth, LoadResult, MavenDetection, Overview, Recent, UpdateInfo, UpdateResult } from './types'
 
 // In-memory stand-in for the Go backend, used by `npm run dev` in a plain
 // browser. Data is illustrative only.
@@ -24,7 +24,7 @@ let config: Config = {
     },
   },
   proxy: { mode: 'system', url: '', noProxy: '' },
-  preferences: { profileMode: 'default', autoRenew: true, theme: 'dark', language: 'system', prodPattern: '' },
+  preferences: { profileMode: 'default', autoRenew: true, checkUpdates: true, theme: 'dark', language: 'system', prodPattern: '' },
 }
 
 // The backend decides which roles are read-only (config.IsReadOnlyRole); the mock only has ReadOnly.
@@ -157,6 +157,17 @@ export const mock = {
   },
   async CopyExport() {},
   async SetLanguage(_lang: string) {},
+  async CheckUpdate(): Promise<UpdateInfo> {
+    return { available: true, version: '0.2.0-beta.9', url: 'https://github.com/pickrole/pickrole/releases', canInstall: true }
+  },
+  // Shows the Linux fallback, since the mock can't restart anything.
+  async ApplyUpdate(): Promise<UpdateResult> {
+    await wait(1200)
+    return {
+      manualCommand: "sudo dnf install '/home/you/.cache/pickrole/updates/pickrole_0.2.0-beta.9_el8_x86_64.rpm'",
+      reason: 'exit status 126: Not authorized',
+    }
+  },
   async About(): Promise<About> {
     return {
       version: 'mock',

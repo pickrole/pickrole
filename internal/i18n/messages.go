@@ -53,6 +53,11 @@ var catalog = map[Lang]map[string]string{
 		"maven.settings_not_found": "%s doesn't exist yet: enter the server IDs by hand",
 		"maven.backup":             "Couldn't create the backup",
 
+		"update.check":    "Couldn't check for a new version",
+		"update.download": "Couldn't download the new version",
+		"update.install":  "Couldn't install the new version",
+		"update.none":     "No new version to install",
+
 		"sso.login_required":      "Your SSO session expired. Sign in again.",
 		"sso.register_client":     "Couldn't register the OIDC client",
 		"sso.start_authorization": "Couldn't start the authorization",
@@ -108,6 +113,11 @@ var catalog = map[Lang]map[string]string{
 		"maven.empty_server_id":    "ID do server do Maven vazio",
 		"maven.settings_not_found": "%s ainda não existe: informe os IDs dos servers à mão",
 		"maven.backup":             "Não foi possível criar o backup",
+
+		"update.check":    "Não foi possível procurar uma versão nova",
+		"update.download": "Não foi possível baixar a versão nova",
+		"update.install":  "Não foi possível instalar a versão nova",
+		"update.none":     "Nenhuma versão nova para instalar",
 
 		"sso.login_required":      "Sua sessão SSO expirou. Entre novamente.",
 		"sso.register_client":     "Não foi possível registrar o cliente OIDC",

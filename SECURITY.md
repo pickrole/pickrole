@@ -46,4 +46,6 @@ already require control of the user's account on the machine.
 - On Windows, `0600` doesn't change the file's ACL, which is inherited from the home folder (by default only the owner
   can read it).
 - The binaries aren't signed (Authenticode on Windows, GPG for the RPM). Check downloads against the release's
-  `SHA256SUMS`.
+  `SHA256SUMS`. Updates from the app do that check themselves, but the checksum proves the file is intact, not who
+  published it: a compromised GitHub account could replace both
+  ([ADR 0024](docs/adr/0024-updates-from-the-app.md)).

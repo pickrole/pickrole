@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from './Icon.svelte'
   import ProdTag from './ProdTag.svelte'
-  import type { Active, Session } from './types'
+  import type { Active, Session, UpdateInfo } from './types'
   import { minutesLeft, remaining } from './time'
   import { t, tn } from './i18n/index.svelte'
 
@@ -17,6 +17,8 @@
     onLogin,
     onAbout,
     onShowActive,
+    update,
+    onUpdate,
   }: {
     session: Session
     active: Active | null
@@ -29,6 +31,8 @@
     onLogin: () => void
     onAbout: () => void
     onShowActive: () => void
+    update: UpdateInfo | null
+    onUpdate: () => void
   } = $props()
 
   const left = $derived(session.loggedIn ? minutesLeft(session.expiresAt, now) : -1)
@@ -54,6 +58,16 @@
     <span class="px-2 text-sm text-faint">{t('header.noActiveProfile')}</span>
   {/if}
   <span class="grow"></span>
+
+  {#if update?.available}
+    <button
+      class="flex items-center gap-1.5 rounded-full border border-accent-line bg-accent-soft px-[11px] py-[5px] text-[12.5px] font-medium text-accent-soft-fg"
+      title={t('update.title')}
+      onclick={onUpdate}
+    >
+      <Icon name="download" size={13} />{t('header.updateAvailable', { version: update.version })}
+    </button>
+  {/if}
 
   {#if state === 'ok'}
     <span
