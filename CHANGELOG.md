@@ -5,6 +5,13 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Check for updates** no longer fails with HTTP 403 on company networks: when the GitHub API refuses (its limit per
+  network address, or a proxy that only allows `github.com`), PickRole reads the release page's feed instead. When the
+  check still fails, the message says why (GitHub's limit, the proxy, no answer in time) instead of showing a URL,
+  and it no longer squeezes the button in **About**.
+
 ## [0.2.0-beta.7] - 2026-09-28
 
 On machines where administrator commands go through `pbrun`, install this version by hand, replacing `sudo` with

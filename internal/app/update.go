@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"net/http"
 	"os"
 	"path/filepath"
 	"time"
@@ -66,7 +67,7 @@ func (s *Service) CheckUpdate(manual bool) (UpdateInfo, error) {
 	defer cancel()
 	rel, err := newUpdateSource().Newer(ctx, current)
 	if err != nil {
-		return UpdateInfo{}, i18n.Wrap("update.check", err)
+		return UpdateInfo{}, i18n.Wrap("update.check", explainUpdateError(err))
 	}
 	s.mu.Lock()
 	s.newer = rel
@@ -79,10 +80,29 @@ func (s *Service) CheckUpdate(manual bool) (UpdateInfo, error) {
 		Available:       true,
 		Version:         rel.Version.String(),
 		URL:             rel.URL,
-		CanInstall:      inst.Supported() && rel.Assets[inst.Asset(rel.Version)] != "",
+		CanInstall:      inst.Supported() && rel.AssetURL(inst.Asset(rel.Version)) != "",
 		Security:        rel.Security,
 		TerminalInstall: inst.TerminalInstall(),
 	}, nil
+}
+
+// explainUpdateError says what a failed check means in the user's
+// language, instead of a URL and a status code.
+func explainUpdateError(err error) error {
+	var status *update.HTTPError
+	switch {
+	case errors.As(err, &status) && status.RateLimited && !status.Reset.IsZero():
+		return i18n.New("update.rate_limited_until", status.Reset.Local().Format("15:04"))
+	case errors.As(err, &status) && status.RateLimited:
+		return i18n.New("update.rate_limited")
+	case errors.As(err, &status) && (status.Status == http.StatusForbidden || status.Status == http.StatusProxyAuthRequired):
+		return i18n.New("update.refused", status.Host, status.Status)
+	case errors.As(err, &status):
+		return i18n.New("update.http_status", status.Host, status.Status)
+	case errors.Is(err, context.DeadlineExceeded):
+		return i18n.New("update.timeout")
+	}
+	return err
 }
 
 // ApplyUpdate downloads the release found by CheckUpdate for this

@@ -7,11 +7,15 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"path"
 	"testing"
+	"time"
 
+	"github.com/pickrole/pickrole/internal/i18n"
 	"github.com/pickrole/pickrole/internal/update"
 )
 
@@ -103,5 +107,25 @@ func TestCheckUpdate(t *testing.T) {
 	startDev(context.Background(), &fakePlatform{})
 	if info, _ := dev.CheckUpdate(false); info.Available {
 		t.Error("a local build should not check")
+	}
+}
+
+// A failed check says what it means, not a URL and a status code.
+func TestExplainUpdateError(t *testing.T) {
+	i18n.SetLanguage(i18n.English)
+	for err, key := range map[error]string{
+		&update.HTTPError{Host: "api.github.com", Status: 403, RateLimited: true, Reset: time.Unix(1790000000, 0)}: "update.rate_limited_until",
+		&update.HTTPError{Host: "api.github.com", Status: 429, RateLimited: true}:                                  "update.rate_limited",
+		&update.HTTPError{Host: "api.github.com", Status: 403}:                                                     "update.refused",
+		&update.HTTPError{Host: "api.github.com", Status: 502}:                                                     "update.http_status",
+		fmt.Errorf("get: %w", context.DeadlineExceeded):                                                            "update.timeout",
+	} {
+		var got *i18n.Error
+		if !errors.As(explainUpdateError(err), &got) || got.Key() != key {
+			t.Errorf("%v: want %s, got %v", err, key, explainUpdateError(err))
+		}
+	}
+	if err := errors.New("other"); explainUpdateError(err) != err {
+		t.Error("other errors should pass through")
 	}
 }

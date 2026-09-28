@@ -1,11 +1,13 @@
 package update
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -245,5 +247,76 @@ func TestNewerSecurity(t *testing.T) {
 	}
 	if rel, _ := src.Newer(ctx, mustVersion(t, "0.2.0-beta.6")); rel == nil || rel.Security {
 		t.Errorf("from beta.6: the fix is already installed, got %+v", rel)
+	}
+}
+
+// When the API refuses (GitHub's rate limit for a shared company address,
+// or a proxy that only lets github.com through), the release feed is used,
+// and the files are downloaded from where every release keeps them.
+func TestNewerFallsBackToTheFeed(t *testing.T) {
+	pkg := []byte("package contents")
+	sum := sha256.Sum256(pkg)
+	mux := http.NewServeMux()
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	src := Source{
+		ReleasesURL:    srv.URL + "/api/releases",
+		FeedURL:        srv.URL + "/releases.atom",
+		DownloadPrefix: srv.URL + "/download/",
+		HTTP:           srv.Client(),
+	}
+	mux.HandleFunc("/api/releases", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("X-RateLimit-Remaining", "0")
+		w.Header().Set("X-RateLimit-Reset", "1790000000")
+		w.WriteHeader(http.StatusForbidden)
+	})
+	mux.HandleFunc("/releases.atom", func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry><link rel="alternate" type="text/html" href="https://github.com/pickrole/pickrole/releases/tag/v0.2.0-beta.8"/>
+    <content type="html">&lt;h3&gt;Fixed&lt;/h3&gt;</content></entry>
+  <entry><link rel="alternate" type="text/html" href="https://github.com/pickrole/pickrole/releases/tag/v0.2.0-beta.7"/>
+    <content type="html">&lt;h3&gt;Security&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;A fix.&lt;/li&gt;&lt;/ul&gt;</content></entry>
+  <entry><link rel="alternate" type="text/html" href="https://github.com/pickrole/pickrole/releases/tag/v0.3.0"/>
+    <content type="html">&lt;p&gt;A final release.&lt;/p&gt;</content></entry>
+  <entry><link rel="alternate" type="text/html" href="https://example.com/elsewhere"/></entry>
+</feed>`)
+	})
+	mux.HandleFunc("/download/v0.3.0/", func(w http.ResponseWriter, r *http.Request) {
+		switch filepath.Base(r.URL.Path) {
+		case "SHA256SUMS":
+			_, _ = io.WriteString(w, hex.EncodeToString(sum[:])+"  pickrole.zip\n")
+		case "pickrole.zip":
+			_, _ = w.Write(pkg)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+	ctx := context.Background()
+
+	rel, err := src.Newer(ctx, mustVersion(t, "0.2.0-beta.6"))
+	if err != nil || rel == nil || rel.Version.String() != "0.3.0" || !rel.Security {
+		t.Fatalf("want 0.3.0 with a security fix on the way, got %+v, %v", rel, err)
+	}
+	if rel, _ := src.Newer(ctx, mustVersion(t, "0.2.0")); rel == nil || rel.Version.String() != "0.3.0" || rel.Security {
+		t.Errorf("a final release should only be offered final releases, got %+v", rel)
+	}
+	if got := rel.AssetURL("pickrole.zip"); got != src.DownloadPrefix+"v0.3.0/pickrole.zip" {
+		t.Errorf("asset URL: %s", got)
+	}
+	path, err := src.Download(ctx, rel, "pickrole.zip", t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data, _ := os.ReadFile(path); !bytes.Equal(data, pkg) {
+		t.Error("wrong file")
+	}
+
+	// Without the feed, the API's answer is reported as it is.
+	src.FeedURL = ""
+	_, err = src.Newer(ctx, mustVersion(t, "0.2.0-beta.6"))
+	var status *HTTPError
+	if !errors.As(err, &status) || status.Status != http.StatusForbidden || !status.RateLimited || status.Reset.Unix() != 1790000000 {
+		t.Errorf("want the rate limit, got %v", err)
 	}
 }
