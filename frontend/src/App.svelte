@@ -7,6 +7,7 @@
   import Icon from './lib/Icon.svelte'
   import Login from './lib/Login.svelte'
   import UpdateDialog from './lib/UpdateDialog.svelte'
+  import AboutButton from './lib/AboutButton.svelte'
   import Settings from './lib/Settings.svelte'
   import Splash from './lib/Splash.svelte'
   import StartPanel from './lib/StartPanel.svelte'
@@ -72,7 +73,7 @@
     // a notice, and the network may block GitHub.
     const checkUpdate = async () => {
       try {
-        update = await api.CheckUpdate()
+        update = await api.CheckUpdate(false)
       } catch {
         // ignore
       }
@@ -210,14 +211,7 @@
           >
             <Icon name="back" size={16} stroke={2.2} />
           </button>
-          <button
-            class="flex size-9 items-center justify-center rounded-lg border border-line text-muted hover:text-fg"
-            aria-label={t('about.title')}
-            title={t('about.title')}
-            onclick={() => (showAbout = true)}
-          >
-            <Icon name="info" size={15} />
-          </button>
+          <AboutButton {update} onAbout={() => (showAbout = true)} />
         </header>
         <Login
           firstRun={overview.accounts.length === 0}
@@ -237,7 +231,6 @@
           onLogin={() => (view = 'login')}
           onAbout={() => (showAbout = true)}
           {update}
-          onUpdate={() => (showUpdate = true)}
           onShowActive={() => (selectedId = overview?.active?.accountId ?? null)}
         />
         <div class="flex min-h-0 grow">
@@ -287,7 +280,17 @@
     </div>
   {/if}
   {#if showAbout}
-    <About onClose={() => (showAbout = false)} />
+    <About
+      {update}
+      onClose={() => (showAbout = false)}
+      onCheck={async () => {
+        update = await api.CheckUpdate(true)
+      }}
+      onUpdate={() => {
+        showAbout = false
+        showUpdate = true
+      }}
+    />
   {/if}
   {#if showUpdate && update?.available}
     <UpdateDialog info={update} current={overview?.version ?? ''} onClose={() => (showUpdate = false)} />

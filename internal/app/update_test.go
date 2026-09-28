@@ -71,7 +71,7 @@ func TestCheckUpdate(t *testing.T) {
 
 	svc, start := New(Build{Version: "0.2.0-beta.4"})
 	start(context.Background(), &fakePlatform{})
-	info, err := svc.CheckUpdate()
+	info, err := svc.CheckUpdate(false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +81,7 @@ func TestCheckUpdate(t *testing.T) {
 
 	// No package for this installation: the notice still shows, with the page.
 	withInstallation(t, update.Installation{Format: update.FormatDeb})
-	if info, _ := svc.CheckUpdate(); !info.Available || info.CanInstall {
+	if info, _ := svc.CheckUpdate(false); !info.Available || info.CanInstall {
 		t.Errorf("want a notice without install: %+v", info)
 	}
 
@@ -92,12 +92,16 @@ func TestCheckUpdate(t *testing.T) {
 	if _, err := svc.SaveConfig(cfg); err != nil {
 		t.Fatal(err)
 	}
-	if info, _ := svc.CheckUpdate(); info.Available {
+	if info, _ := svc.CheckUpdate(false); info.Available {
 		t.Error("checked with the preference off")
+	}
+	// "Check for updates" in About still checks.
+	if info, _ := svc.CheckUpdate(true); !info.Available {
+		t.Error("a manual check should ignore the preference")
 	}
 	dev, startDev := New(Build{Version: "dev"})
 	startDev(context.Background(), &fakePlatform{})
-	if info, _ := dev.CheckUpdate(); info.Available {
+	if info, _ := dev.CheckUpdate(false); info.Available {
 		t.Error("a local build should not check")
 	}
 }

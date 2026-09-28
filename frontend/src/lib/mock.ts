@@ -157,7 +157,8 @@ export const mock = {
   },
   async CopyExport() {},
   async SetLanguage(_lang: string) {},
-  async CheckUpdate(): Promise<UpdateInfo> {
+  async CheckUpdate(_manual: boolean): Promise<UpdateInfo> {
+    await wait(600)
     return { available: true, version: '0.2.0-beta.9', url: 'https://github.com/pickrole/pickrole/releases', canInstall: true }
   },
   // Shows the Linux fallback, since the mock can't restart anything.

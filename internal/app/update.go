@@ -41,15 +41,16 @@ var (
 )
 
 // CheckUpdate looks for a release newer than this build on GitHub, through
-// the configured proxy (docs/adr/0024). Local builds (version "dev") and a
-// disabled preference never check.
-func (s *Service) CheckUpdate() (UpdateInfo, error) {
+// the configured proxy (docs/adr/0024). The periodic check (manual false)
+// respects the preference; "Check for updates" in About (manual true) always
+// checks. Local builds (version "dev") never do.
+func (s *Service) CheckUpdate(manual bool) (UpdateInfo, error) {
 	s.mu.Lock()
 	on := s.cfg.Preferences.CheckUpdates
 	ctx := s.ctx
 	s.mu.Unlock()
 	current, ok := update.ParseVersion(s.build.Version)
-	if !on || !ok {
+	if !on && !manual || !ok {
 		return UpdateInfo{}, nil
 	}
 	if ctx == nil {

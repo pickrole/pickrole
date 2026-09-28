@@ -94,7 +94,12 @@ export const ptBR: Messages = {
   'settings.back': 'Voltar',
 
   // Atualizações
-  'header.updateAvailable': 'Versão {version}',
+  'about.titleUpdate': 'Sobre o PickRole: há uma versão nova',
+  'about.updateAvailable': 'A versão {version} está disponível',
+  'about.update': 'Atualizar',
+  'about.checkUpdates': 'Procurar atualizações',
+  'about.checking': 'Procurando…',
+  'about.upToDate': 'Você está na versão mais recente.',
   'update.title': 'Nova versão disponível',
   'update.close': 'Fechar',
   'update.notes': 'O que mudou',

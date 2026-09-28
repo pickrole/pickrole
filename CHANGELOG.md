@@ -5,6 +5,11 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- The new-version notice moved from a header badge to the **About** button, which gets a dot; About shows the new
+  version with **Update**, and **Check for updates** checks right away.
+
 ## [0.2.0-beta.6] - 2026-09-28
 
 ### Added

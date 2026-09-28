@@ -32,7 +32,7 @@ func TestApplyUpdateWindows(t *testing.T) {
 	if _, err := svc.ApplyUpdate(); err == nil {
 		t.Error("ApplyUpdate before CheckUpdate should fail")
 	}
-	if _, err := svc.CheckUpdate(); err != nil {
+	if _, err := svc.CheckUpdate(false); err != nil {
 		t.Fatal(err)
 	}
 	res, err := svc.ApplyUpdate()

@@ -37,7 +37,7 @@ type Backend = {
   CopyExport(): Promise<void>
   SetLanguage(lang: string): Promise<void>
   About(): Promise<About>
-  CheckUpdate(): Promise<UpdateInfo>
+  CheckUpdate(manual: boolean): Promise<UpdateInfo>
   ApplyUpdate(): Promise<UpdateResult>
 }
 
