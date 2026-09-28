@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from './Icon.svelte'
   import ProdTag from './ProdTag.svelte'
+  import AboutButton from './AboutButton.svelte'
   import type { Active, Session, UpdateInfo } from './types'
   import { minutesLeft, remaining } from './time'
   import { t, tn } from './i18n/index.svelte'
@@ -18,7 +19,6 @@
     onAbout,
     onShowActive,
     update,
-    onUpdate,
   }: {
     session: Session
     active: Active | null
@@ -32,7 +32,6 @@
     onAbout: () => void
     onShowActive: () => void
     update: UpdateInfo | null
-    onUpdate: () => void
   } = $props()
 
   const left = $derived(session.loggedIn ? minutesLeft(session.expiresAt, now) : -1)
@@ -59,15 +58,6 @@
   {/if}
   <span class="grow"></span>
 
-  {#if update?.available}
-    <button
-      class="flex items-center gap-1.5 rounded-full border border-accent-line bg-accent-soft px-[11px] py-[5px] text-[12.5px] font-medium text-accent-soft-fg"
-      title={t('update.title')}
-      onclick={onUpdate}
-    >
-      <Icon name="download" size={13} />{t('header.updateAvailable', { version: update.version })}
-    </button>
-  {/if}
 
   {#if state === 'ok'}
     <span
@@ -109,14 +99,7 @@
       <Icon name="refresh" size={15} />
     </span>
   </button>
-  <button
-    class="flex size-9 items-center justify-center rounded-lg border border-line text-muted hover:text-fg"
-    aria-label={t('about.title')}
-    title={t('about.title')}
-    onclick={onAbout}
-  >
-    <Icon name="info" size={15} />
-  </button>
+  <AboutButton {update} {onAbout} />
   <button
     class="flex size-9 items-center justify-center rounded-lg border border-line text-muted hover:text-fg"
     aria-label={t('header.settings')}

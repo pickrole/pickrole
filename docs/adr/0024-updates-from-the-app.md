@@ -1,6 +1,6 @@
 # 0024. New-version notice and updates from the app
 
-- Status: accepted
+- Status: accepted, amended by [0025](0025-update-notice-in-about.md)
 - Date: 2026-09-28
 
 ## Context

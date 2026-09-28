@@ -102,8 +102,17 @@ export const en = {
   'settings.back': 'Back',
 
   // Updates
-  'header.updateAvailable': 'Version {version}',
+  'about.titleUpdate': 'About PickRole: a new version is available',
+  'about.titleSecurityUpdate': 'About PickRole: a security update is available',
+  'about.securityUpdateAvailable': 'Security update: version {version} is available',
+  'about.updateAvailable': 'Version {version} is available',
+  'about.update': 'Update',
+  'about.checkUpdates': 'Check for updates',
+  'about.checking': 'Checking…',
+  'about.upToDate': "You're on the latest version.",
   'update.title': 'New version available',
+  'update.securityTitle': 'Security update available',
+  'update.securityNote': 'This update fixes a security issue. Install it as soon as you can.',
   'update.close': 'Close',
   'update.notes': "What's new",
   'update.explain':

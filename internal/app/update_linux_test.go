@@ -24,7 +24,7 @@ func TestApplyUpdateLinuxFallsBackToCommand(t *testing.T) {
 	p := &fakePlatform{}
 	svc, start := New(Build{Version: "0.2.0-beta.4"})
 	start(context.Background(), p)
-	if _, err := svc.CheckUpdate(); err != nil {
+	if _, err := svc.CheckUpdate(false); err != nil {
 		t.Fatal(err)
 	}
 	res, err := svc.ApplyUpdate()

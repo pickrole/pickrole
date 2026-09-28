@@ -58,6 +58,10 @@ type Release struct {
 	URL string
 	// Assets maps file names to download URLs.
 	Assets map[string]string
+	// Security is true when this release, or any other one between the
+	// running version and it, has a "Security" section in its notes (the
+	// CHANGELOG convention), so skipping versions doesn't hide a fix.
+	Security bool
 }
 
 const (
@@ -79,6 +83,7 @@ func (s Source) Newer(ctx context.Context, current Version) (*Release, error) {
 		URL        string `json:"html_url"`
 		Draft      bool   `json:"draft"`
 		Prerelease bool   `json:"prerelease"`
+		Body       string `json:"body"`
 		Assets     []struct {
 			Name string `json:"name"`
 			URL  string `json:"browser_download_url"`
@@ -88,12 +93,17 @@ func (s Source) Newer(ctx context.Context, current Version) (*Release, error) {
 		return nil, fmt.Errorf("release list: %w", err)
 	}
 	var best *Release
+	security := false
 	for _, r := range list {
 		v, ok := ParseVersion(r.Tag)
 		if !ok || r.Draft || (v.Prerelease() || r.Prerelease) && !current.Prerelease() {
 			continue
 		}
-		if v.Compare(current) <= 0 || best != nil && v.Compare(best.Version) <= 0 {
+		if v.Compare(current) <= 0 {
+			continue
+		}
+		security = security || hasSecuritySection(r.Body)
+		if best != nil && v.Compare(best.Version) <= 0 {
 			continue
 		}
 		rel := &Release{Version: v, Tag: r.Tag, URL: r.URL, Assets: map[string]string{}}
@@ -102,7 +112,22 @@ func (s Source) Newer(ctx context.Context, current Version) (*Release, error) {
 		}
 		best = rel
 	}
+	if best != nil {
+		best.Security = security
+	}
 	return best, nil
+}
+
+// hasSecuritySection reports whether release notes have a "Security"
+// heading, as CHANGELOG.md does for security fixes (Keep a Changelog).
+func hasSecuritySection(notes string) bool {
+	for _, line := range strings.Split(notes, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "#") && strings.EqualFold(strings.TrimSpace(strings.TrimLeft(line, "#")), "Security") {
+			return true
+		}
+	}
+	return false
 }
 
 // Download saves asset of rel in dir and checks it against the release's

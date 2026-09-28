@@ -22,6 +22,9 @@ type UpdateInfo struct {
 	// CanInstall is true when PickRole can install it itself (the Windows
 	// .exe, or the RPM/.deb in /usr/bin); otherwise the UI links to the page.
 	CanInstall bool `json:"canInstall"`
+	// Security is true when the update includes a security fix: the notice
+	// then uses the warning color (docs/adr/0025).
+	Security bool `json:"security"`
 }
 
 // UpdateResult is the result of ApplyUpdate that isn't a restart.
@@ -41,15 +44,16 @@ var (
 )
 
 // CheckUpdate looks for a release newer than this build on GitHub, through
-// the configured proxy (docs/adr/0024). Local builds (version "dev") and a
-// disabled preference never check.
-func (s *Service) CheckUpdate() (UpdateInfo, error) {
+// the configured proxy (docs/adr/0024). The periodic check (manual false)
+// respects the preference; "Check for updates" in About (manual true) always
+// checks. Local builds (version "dev") never do.
+func (s *Service) CheckUpdate(manual bool) (UpdateInfo, error) {
 	s.mu.Lock()
 	on := s.cfg.Preferences.CheckUpdates
 	ctx := s.ctx
 	s.mu.Unlock()
 	current, ok := update.ParseVersion(s.build.Version)
-	if !on || !ok {
+	if !on && !manual || !ok {
 		return UpdateInfo{}, nil
 	}
 	if ctx == nil {
@@ -73,6 +77,7 @@ func (s *Service) CheckUpdate() (UpdateInfo, error) {
 		Version:    rel.Version.String(),
 		URL:        rel.URL,
 		CanInstall: inst.Supported() && rel.Assets[inst.Asset(rel.Version)] != "",
+		Security:   rel.Security,
 	}, nil
 }
 

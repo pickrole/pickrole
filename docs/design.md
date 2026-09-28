@@ -11,7 +11,7 @@ follow the system. **Each color has one meaning**
 | `accent` | `#34C08F` | `#0D7A58` | Primary action. Also the app icon color. |
 | `glow` | `#154837` | `#CFE9DD` | The accent's deep tone, only for the backdrop of the opening screen and the About dialog. |
 | `ok` | `#A3CF62` | `#5A8A16` | Active profile, success. Lime (hue ~84°), far from the accent (~160°). |
-| `warn` | `#F0A848` | `#B8741A` | Session about to expire. |
+| `warn` | `#F0A848` | `#B8741A` | Needs attention soon: the session about to expire, an update that fixes a security issue. |
 | `prod` | `#F07A6A` | `#C4412F` | Production accounts. Write roles in production ask for confirmation. |
 
 Rules:

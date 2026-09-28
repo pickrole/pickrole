@@ -8,9 +8,36 @@
   import { api, errorMessage } from './api'
   import { tagline } from './brand'
   import { locale, t } from './i18n/index.svelte'
-  import type { About } from './types'
+  import type { About, UpdateInfo } from './types'
 
-  let { onClose }: { onClose: () => void } = $props()
+  let {
+    update,
+    onClose,
+    onCheck,
+    onUpdate,
+  }: {
+    update: UpdateInfo | null
+    onClose: () => void
+    onCheck: () => Promise<void>
+    onUpdate: () => void
+  } = $props()
+
+  let checking = $state(false)
+  let checked = $state(false)
+  let checkError = $state('')
+
+  async function check() {
+    checking = true
+    checkError = ''
+    try {
+      await onCheck()
+      checked = true
+    } catch (e) {
+      checkError = errorMessage(e)
+    } finally {
+      checking = false
+    }
+  }
 
   let about = $state<About | null>(null)
   let error = $state('')
@@ -109,6 +136,39 @@
       {#if error}
         <p class="flex items-center gap-1.5 text-prod-fg" role="alert"><Icon name="alert" size={13} />{error}</p>
       {:else if about}
+        <div aria-live="polite" class="mb-4">
+          {#if update?.available}
+            {@const sec = update.security}
+            <div
+              class="flex items-center gap-3 rounded-[10px] border px-3.5 py-2.5 {sec
+                ? 'border-warn-line bg-warn-soft'
+                : 'border-accent-line bg-accent-soft'}"
+            >
+              <span class="size-2 shrink-0 rounded-full {sec ? 'bg-warn' : 'bg-accent'}"></span>
+              <span class="grow {sec ? 'text-warn-fg' : 'text-accent-soft-fg'}"
+                >{t(sec ? 'about.securityUpdateAvailable' : 'about.updateAvailable', { version: update.version })}</span
+              >
+              <button
+                class="h-8 rounded-lg px-3 font-semibold {sec ? 'bg-warn text-warn-ink' : 'bg-accent text-accent-ink'}"
+                onclick={onUpdate}>{t('about.update')}</button
+              >
+            </div>
+          {:else}
+            <div class="flex items-center gap-3">
+              <span class="grow {checkError ? 'text-prod-fg' : 'text-muted'}"
+                >{checkError || (checked ? t('about.upToDate') : '')}</span
+              >
+              <button
+                class="flex h-8 items-center gap-1.5 rounded-lg border border-line px-3"
+                onclick={check}
+                disabled={checking}
+              >
+                <span class={checking ? 'animate-[spin_0.9s_linear_infinite]' : ''}><Icon name="refresh" size={13} /></span
+                >{checking ? t('about.checking') : t('about.checkUpdates')}
+              </button>
+            </div>
+          {/if}
+        </div>
         <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-1.5">
           {#each details as d (d.label)}
             <dt class="text-faint">{d.label}</dt>

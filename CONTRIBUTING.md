@@ -103,7 +103,9 @@ in the release fails when the binaries contain a known vulnerability.
 To publish a version:
 
 1. In the [changelog](CHANGELOG.md), rename "Unreleased" to `[X.Y.Z] - YYYY-MM-DD` and start a new "Unreleased"
-   section. That section becomes the release notes, so write it for people who use the app.
+   section. That section becomes the release notes, so write it for people who use the app. A `### Security`
+   heading there makes the app show the update as a security fix, in orange
+   ([ADR 0025](docs/adr/0025-update-notice-in-about.md)).
 2. Push the `vX.Y.Z` tag on `main`. The release workflow first checks the changelog section
    (`scripts/release-notes.sh`), then builds and install-tests the Linux packages, builds the Windows `.zip`, and
    publishes everything with `SHA256SUMS`.
