@@ -145,6 +145,9 @@ export const en = {
   'settings.recommended': '(recommended)',
   'settings.profileNamed': 'One profile per account and role',
   'settings.useAwsProfile': '(use with AWS_PROFILE)',
+  'settings.autoRenew': 'Renew the active profile automatically',
+  'settings.autoRenewNote':
+    'While PickRole is open, the credentials and the CodeArtifact token are renewed a few minutes before they expire, as long as the SSO session lasts.',
   'settings.theme': 'Theme',
   'settings.theme.system': 'Same as system',
   'settings.theme.dark': 'Dark',

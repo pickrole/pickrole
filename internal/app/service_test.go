@@ -11,13 +11,17 @@ import (
 	"github.com/pickrole/pickrole/internal/config"
 )
 
-type fakePlatform struct{ clipboard, opened, openPath string }
+type fakePlatform struct {
+	clipboard, opened, openPath string
+	events                      []string
+}
 
 func (f *fakePlatform) OpenURL(url string)                      { f.opened = url }
 func (f *fakePlatform) SetClipboard(text string) error          { f.clipboard = text; return nil }
 func (f *fakePlatform) SetSecretClipboard(text string) error    { f.clipboard = text; return nil }
 func (f *fakePlatform) OpenFile(string) (string, error)         { return f.openPath, nil }
 func (f *fakePlatform) SaveFile(string, string) (string, error) { return "", nil }
+func (f *fakePlatform) Emit(event string, _ ...any)             { f.events = append(f.events, event) }
 
 func isolate(t *testing.T) string {
 	t.Helper()

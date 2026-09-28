@@ -33,7 +33,9 @@ Switch accounts in PickRole and every terminal uses the new one on its next comm
 - Search (`Ctrl K`), favorites and recent profiles.
 - Production accounts stand out, and loading a role in production asks for confirmation unless its name says it only
   reads (`ReadOnly`, `ViewOnly`, `SecurityAudit`, `Billing`).
-- Warning when the session is about to expire.
+- Automatic renewal: while PickRole is open, the active profile's credentials and CodeArtifact token are renewed
+  before they expire, so terminals don't break every hour. A warning shows when the SSO session itself is about to
+  expire.
 - Shareable configuration: one person sets it up, exports a `.json`, and the rest of the team imports it.
 - Detects an existing `sso-session` in `~/.aws/config`.
 - Dark theme by default, with light and follow-the-system options; English and Brazilian Portuguese, following the
@@ -194,7 +196,6 @@ written readable only by you, since it now holds the token.
 
 - New-version notice
 - Tray icon with favorites and the active profile
-- Automatic CodeArtifact token renewal before it expires
 - Gradle, npm and pip
 - More than one SSO organization
 

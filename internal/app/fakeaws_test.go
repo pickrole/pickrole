@@ -291,3 +291,80 @@ func TestLoginReRegistersUnknownClient(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// While PickRole is open, the active profile is loaded again shortly before
+// its credentials expire (docs/adr/0023), without counting as a new use.
+func TestAutoRenewActiveProfile(t *testing.T) {
+	dir := isolate(t)
+	// Credentials that expire in 5 minutes, inside the renewal window.
+	srv := httptest.NewServer(fakeaws.New(fakeaws.Options{AutoApprove: true, PollInterval: time.Second, CredentialsTTL: 5 * time.Minute}))
+	defer srv.Close()
+	t.Setenv("AWS_ENDPOINT_URL", srv.URL)
+
+	p := &fakePlatform{}
+	svc, start := New(Build{Version: "test"})
+	start(context.Background(), p)
+	cfg := svc.DefaultConfig()
+	cfg.SSO.StartURL = "https://pickrole-fake.awsapps.com/start"
+	if _, err := svc.SaveConfig(cfg); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := svc.StartLogin(); err != nil {
+		t.Fatal(err)
+	}
+	o, err := svc.WaitLogin()
+	if err != nil {
+		t.Fatal(err)
+	}
+	account := o.Accounts[0]
+	first, err := svc.LoadProfile(account.ID, account.Roles[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	credPath := filepath.Join(dir, ".aws", "credentials")
+	before := readFile(t, credPath)
+	usedAt := svc.Overview().Recents[0].UsedAt
+
+	renewed, err := svc.renewDue(time.Now())
+	if err != nil || !renewed {
+		t.Fatalf("renewDue = %v, %v; want a renewal", renewed, err)
+	}
+	if after := readFile(t, credPath); after == before {
+		t.Error("the credentials file should hold new credentials")
+	}
+	ov := svc.Overview()
+	if ov.Active == nil || !ov.Active.ExpiresAt.After(first.Active.ExpiresAt) {
+		t.Errorf("active expiry not moved: %+v", ov.Active)
+	}
+	if len(ov.Recents) != 1 || !ov.Recents[0].UsedAt.Equal(usedAt) {
+		t.Errorf("a renewal must not count as a use: %+v", ov.Recents)
+	}
+
+	// Far from expiry, nothing happens.
+	if renewed, _ := svc.renewDue(time.Now().Add(-time.Hour)); renewed {
+		t.Error("renewed credentials that expire in over an hour")
+	}
+
+	// The preference turns it off.
+	cfg = svc.Overview().Config
+	cfg.Preferences.AutoRenew = false
+	if _, err := svc.SaveConfig(cfg); err != nil {
+		t.Fatal(err)
+	}
+	if renewed, _ := svc.renewDue(time.Now()); renewed {
+		t.Error("renewed with autoRenew off")
+	}
+
+	// A failure is reported to the UI once, not every minute.
+	cfg.Preferences.AutoRenew = true
+	if _, err := svc.SaveConfig(cfg); err != nil {
+		t.Fatal(err)
+	}
+	srv.Close()
+	p.events = nil
+	svc.renewAndNotify(time.Now())
+	svc.renewAndNotify(time.Now())
+	if n := strings.Count(strings.Join(p.events, ","), EventRenewError); n != 1 {
+		t.Errorf("renew-error sent %d times, want 1: %v", n, p.events)
+	}
+}

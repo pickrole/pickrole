@@ -10,7 +10,7 @@
   import Splash from './lib/Splash.svelte'
   import StartPanel from './lib/StartPanel.svelte'
   import { fade } from 'svelte/transition'
-  import { api, errorMessage, isLoginRequired, isMock } from './lib/api'
+  import { api, errorMessage, isLoginRequired, isMock, onBackendEvent } from './lib/api'
   import { tagline } from './lib/brand'
   import { resolveLocale, setLocale, t } from './lib/i18n/index.svelte'
   import { stamp } from './lib/time'
@@ -57,6 +57,14 @@
 
   onMount(() => {
     const tick = setInterval(() => (now = Date.now()), 30_000)
+    // Automatic renewal runs in the backend; it tells us when the state
+    // changed, and why it failed if it did.
+    const offOverview = onBackendEvent('overview', async () => {
+      overview = await api.Overview()
+    })
+    const offRenewError = onBackendEvent('renew-error', (msg) => {
+      error = errorMessage(msg)
+    })
     ;(async () => {
       try {
         overview = await api.Overview()
@@ -67,7 +75,11 @@
         view = 'main'
       }
     })()
-    return () => clearInterval(tick)
+    return () => {
+      clearInterval(tick)
+      offOverview()
+      offRenewError()
+    }
   })
 
   async function run(key: string, fn: () => Promise<void>) {

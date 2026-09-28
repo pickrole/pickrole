@@ -42,6 +42,8 @@ type Platform interface {
 	SetSecretClipboard(text string) error
 	OpenFile(title string) (string, error)
 	SaveFile(title, defaultName string) (string, error)
+	// Emit tells the UI that something changed in the background.
+	Emit(event string, data ...any)
 }
 
 // Session describes the SSO session.
@@ -104,6 +106,11 @@ type Service struct {
 	snapshot   store.Snapshot
 	lastCreds  *awsfiles.Credentials
 	pending    *sso.DeviceAuth
+
+	// renewing keeps two renewals from running at once; renewErr is the
+	// last background error shown, so it isn't repeated every minute.
+	renewing sync.Mutex
+	renewErr string
 }
 
 // New returns the service and the function that starts it once the
@@ -128,6 +135,7 @@ func (s *Service) start(ctx context.Context, p Platform) {
 	s.state, _ = store.LoadState()
 	s.snapshot, _, _ = store.LoadSnapshot()
 	s.resetClient()
+	go s.renewLoop(ctx)
 }
 
 func (s *Service) resetClient() {
@@ -508,6 +516,12 @@ func homeRelative(path string) string {
 // in the build tools. Every terminal and IDE picks the change up on its
 // next command.
 func (s *Service) LoadProfile(accountID, role string) (LoadResult, error) {
+	return s.loadProfile(accountID, role, true)
+}
+
+// loadProfile loads a profile; used says whether the user picked it, which
+// makes it the most recent one. Background renewals don't.
+func (s *Service) loadProfile(accountID, role string, used bool) (LoadResult, error) {
 	s.mu.Lock()
 	client, err := s.requireClient()
 	ctx, cfg := s.ctx, s.cfg
@@ -585,12 +599,14 @@ func (s *Service) LoadProfile(accountID, role string) (LoadResult, error) {
 	if access != nil {
 		s.state.SetCodeArtifactAccess(accountID, role, *access)
 	}
-	s.state.AddRecent(store.Recent{
-		AccountID:   accountID,
-		AccountName: account.Name,
-		Role:        role,
-		UsedAt:      time.Now(),
-	})
+	if used {
+		s.state.AddRecent(store.Recent{
+			AccountID:   accountID,
+			AccountName: account.Name,
+			Role:        role,
+			UsedAt:      time.Now(),
+		})
+	}
 	if err := store.SaveState(s.state); err != nil {
 		res.Warnings = append(res.Warnings, i18n.T("app.history_not_saved")+": "+err.Error())
 	}

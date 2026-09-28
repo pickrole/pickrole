@@ -41,6 +41,8 @@ type Options struct {
 	AutoApprove bool
 	// AccessTokenTTL is how long SSO access tokens last.
 	AccessTokenTTL time.Duration
+	// CredentialsTTL is how long role credentials last (default 1 hour).
+	CredentialsTTL time.Duration
 	// PollInterval is the device-code polling interval sent to the client.
 	PollInterval time.Duration
 	// PageSize is the default page size for accounts and roles, so the SDK
@@ -116,6 +118,9 @@ func New(opts Options) *Server {
 	}
 	if opts.AccessTokenTTL <= 0 {
 		opts.AccessTokenTTL = 8 * time.Hour
+	}
+	if opts.CredentialsTTL <= 0 {
+		opts.CredentialsTTL = credsTTL
 	}
 	if opts.PollInterval <= 0 {
 		opts.PollInterval = time.Second
@@ -429,7 +434,7 @@ func (s *Server) getRoleCredentials(w http.ResponseWriter, r *http.Request) {
 		"accessKeyId":     key,
 		"secretAccessKey": "fakesecret" + randomHex(15),
 		"sessionToken":    "fakesession" + randomHex(40),
-		"expiration":      time.Now().Add(credsTTL).UnixMilli(),
+		"expiration":      time.Now().Add(s.opts.CredentialsTTL).UnixMilli(),
 	}})
 }
 

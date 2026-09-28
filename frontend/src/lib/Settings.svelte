@@ -415,6 +415,13 @@
         </label>
       </fieldset>
       <div class="h-px bg-line"></div>
+      <div class="flex items-center gap-4">
+        <div class="flex grow flex-col gap-[3px]">
+          <span class="text-sm">{t('settings.autoRenew')}</span>
+          <span class="text-xs text-faint">{t('settings.autoRenewNote')}</span>
+        </div>
+        {@render toggle(cfg.preferences.autoRenew, t('settings.autoRenew'), () => (cfg.preferences.autoRenew = !cfg.preferences.autoRenew))}
+      </div>
       <label class="flex items-center gap-4">
         <span class="grow text-sm">{t('settings.theme')}</span>
         <select class="{input} w-40 font-sans" bind:value={cfg.preferences.theme}>

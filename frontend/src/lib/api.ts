@@ -31,7 +31,17 @@ type Backend = {
 declare global {
   interface Window {
     go?: { app?: { Service?: Backend } }
+    runtime?: { EventsOn?: (name: string, cb: (...data: unknown[]) => void) => () => void }
   }
+}
+
+/**
+ * Listens to an event the backend sends when something changes in the
+ * background (app.EventOverview, app.EventRenewError). Returns the function
+ * that stops listening; outside Wails there are no events.
+ */
+export function onBackendEvent(name: string, cb: (...data: unknown[]) => void): () => void {
+  return window.runtime?.EventsOn?.(name, cb) ?? (() => {})
 }
 
 export const isMock = !window.go?.app?.Service

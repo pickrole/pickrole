@@ -137,6 +137,9 @@ export const ptBR: Messages = {
   'settings.recommended': '(recomendado)',
   'settings.profileNamed': 'Um perfil por conta e role',
   'settings.useAwsProfile': '(use com AWS_PROFILE)',
+  'settings.autoRenew': 'Renovar o perfil ativo automaticamente',
+  'settings.autoRenewNote':
+    'Com o PickRole aberto, as credenciais e o token do CodeArtifact são renovados alguns minutos antes de expirar, enquanto a sessão SSO durar.',
   'settings.theme': 'Tema',
   'settings.theme.system': 'Igual ao sistema',
   'settings.theme.dark': 'Escuro',

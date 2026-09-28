@@ -54,6 +54,8 @@ func (p platform) SetSecretClipboard(text string) error {
 	return runtime.ClipboardSetText(p.ctx, text)
 }
 
+func (p platform) Emit(event string, data ...any) { runtime.EventsEmit(p.ctx, event, data...) }
+
 func (p platform) OpenFile(title string) (string, error) {
 	return runtime.OpenFileDialog(p.ctx, runtime.OpenDialogOptions{Title: title, Filters: jsonFilter()})
 }
