@@ -5,6 +5,8 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0-beta.6] - 2026-09-28
+
 ### Added
 
 - Profile names follow a format in **Settings → Preferences**, with `{account}`, `{accountId}` and `{role}`, so the
@@ -131,7 +133,8 @@ First release, published before this repository became public.
 - On Linux, the GNOME proxy settings aren't read: use `HTTPS_PROXY`.
 - The binaries aren't signed.
 
-[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.5...HEAD
+[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.6...HEAD
+[0.2.0-beta.6]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.5...v0.2.0-beta.6
 [0.2.0-beta.5]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.4...v0.2.0-beta.5
 [0.2.0-beta.4]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.3...v0.2.0-beta.4
 [0.2.0-beta.3]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.2...v0.2.0-beta.3
