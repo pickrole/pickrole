@@ -92,6 +92,22 @@ export const ptBR: Messages = {
   'login.onlyOnce': 'Só acontece uma vez. Nas próximas aberturas, as contas vêm do cache e aparecem na hora.',
 
   'settings.back': 'Voltar',
+
+  // Atualizações
+  'header.updateAvailable': 'Versão {version}',
+  'update.title': 'Nova versão disponível',
+  'update.close': 'Fechar',
+  'update.notes': 'O que mudou',
+  'update.explain':
+    'O PickRole baixa, confere com os checksums da release, instala e reinicia. No Linux, o sistema pede a sua senha.',
+  'update.notSupported': 'Esta instalação não se atualiza sozinha. Baixe a versão nova na página da release.',
+  'update.install': 'Atualizar agora',
+  'update.retry': 'Tentar de novo',
+  'update.later': 'Depois',
+  'update.working': 'Baixando e conferindo…',
+  'update.manual': 'Baixada e conferida, mas não deu para instalar daqui. Rode isto num terminal e abra o PickRole de novo:',
+  'update.copyCommand': 'Copiar comando',
+  'update.openPage': 'Abrir a página da release',
   'settings.setup': 'Configurar o PickRole',
   'settings.title': 'Configurações',
   'settings.import': 'Importar',
@@ -140,6 +156,8 @@ export const ptBR: Messages = {
   'settings.autoRenew': 'Renovar o perfil ativo automaticamente',
   'settings.autoRenewNote':
     'Com o PickRole aberto, as credenciais e o token do CodeArtifact são renovados alguns minutos antes de expirar, enquanto a sessão SSO durar.',
+  'settings.checkUpdates': 'Procurar novas versões',
+  'settings.checkUpdatesNote': 'Consulta as releases no GitHub ao abrir o PickRole e duas vezes por dia, pelo proxy configurado.',
   'settings.theme': 'Tema',
   'settings.theme.system': 'Igual ao sistema',
   'settings.theme.dark': 'Escuro',

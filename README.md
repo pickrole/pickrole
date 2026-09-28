@@ -122,6 +122,14 @@ you. Hand it a prompt such as:
 > checksum, then install it with my distribution's package manager. Confirm with me before running the install
 > command.
 
+### Updating
+
+PickRole tells you when a new version is out, with a badge in the header. **Update now** downloads the package for
+your installation, checks it against the release's `SHA256SUMS` and installs it: on Windows it replaces the `.exe` and
+restarts; on Linux the system asks for your password, or PickRole shows the `sudo dnf install …` command to run. A
+`.tar.gz` install gets the link to the release page. **Settings → Preferences → Check for new versions** turns the
+check off.
+
 ### Proxy
 
 By default PickRole finds the proxy by itself: `HTTPS_PROXY`/`HTTP_PROXY` (and `NO_PROXY`) when set, otherwise the
@@ -194,7 +202,6 @@ written readable only by you, since it now holds the token.
 
 ## Roadmap
 
-- New-version notice
 - Tray icon with favorites and the active profile
 - Gradle, npm and pip
 - More than one SSO organization

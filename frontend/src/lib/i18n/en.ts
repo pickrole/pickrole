@@ -100,6 +100,22 @@ export const en = {
 
   // Settings
   'settings.back': 'Back',
+
+  // Updates
+  'header.updateAvailable': 'Version {version}',
+  'update.title': 'New version available',
+  'update.close': 'Close',
+  'update.notes': "What's new",
+  'update.explain':
+    'PickRole downloads it, checks it against the release checksums, installs it and restarts. On Linux the system asks for your password.',
+  'update.notSupported': 'This installation can\'t update itself. Download the new version from the release page.',
+  'update.install': 'Update now',
+  'update.retry': 'Try again',
+  'update.later': 'Later',
+  'update.working': 'Downloading and checking…',
+  'update.manual': 'Downloaded and checked, but it couldn\'t be installed from here. Run this in a terminal, then open PickRole again:',
+  'update.copyCommand': 'Copy command',
+  'update.openPage': 'Open the release page',
   'settings.setup': 'Set up PickRole',
   'settings.title': 'Settings',
   'settings.import': 'Import',
@@ -148,6 +164,8 @@ export const en = {
   'settings.autoRenew': 'Renew the active profile automatically',
   'settings.autoRenewNote':
     'While PickRole is open, the credentials and the CodeArtifact token are renewed a few minutes before they expire, as long as the SSO session lasts.',
+  'settings.checkUpdates': 'Check for new versions',
+  'settings.checkUpdatesNote': 'Looks at the releases on GitHub when PickRole starts and twice a day, through the configured proxy.',
   'settings.theme': 'Theme',
   'settings.theme.system': 'Same as system',
   'settings.theme.dark': 'Dark',

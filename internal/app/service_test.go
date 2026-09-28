@@ -14,6 +14,7 @@ import (
 type fakePlatform struct {
 	clipboard, opened, openPath string
 	events                      []string
+	quit                        bool
 }
 
 func (f *fakePlatform) OpenURL(url string)                      { f.opened = url }
@@ -22,6 +23,7 @@ func (f *fakePlatform) SetSecretClipboard(text string) error    { f.clipboard = 
 func (f *fakePlatform) OpenFile(string) (string, error)         { return f.openPath, nil }
 func (f *fakePlatform) SaveFile(string, string) (string, error) { return "", nil }
 func (f *fakePlatform) Emit(event string, _ ...any)             { f.events = append(f.events, event) }
+func (f *fakePlatform) Quit()                                   { f.quit = true }
 
 func isolate(t *testing.T) string {
 	t.Helper()

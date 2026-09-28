@@ -27,6 +27,7 @@ import (
 	"github.com/pickrole/pickrole/internal/maven"
 	"github.com/pickrole/pickrole/internal/sso"
 	"github.com/pickrole/pickrole/internal/store"
+	"github.com/pickrole/pickrole/internal/update"
 )
 
 // LoginRequired prefixes errors that mean "open the login screen again".
@@ -44,6 +45,8 @@ type Platform interface {
 	SaveFile(title, defaultName string) (string, error)
 	// Emit tells the UI that something changed in the background.
 	Emit(event string, data ...any)
+	// Quit closes the app, after an update started the new version.
+	Quit()
 }
 
 // Session describes the SSO session.
@@ -111,6 +114,9 @@ type Service struct {
 	// last background error shown, so it isn't repeated every minute.
 	renewing sync.Mutex
 	renewErr string
+
+	// newer is the newer release found by CheckUpdate.
+	newer *update.Release
 }
 
 // New returns the service and the function that starts it once the

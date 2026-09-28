@@ -6,6 +6,7 @@
   import Header from './lib/Header.svelte'
   import Icon from './lib/Icon.svelte'
   import Login from './lib/Login.svelte'
+  import UpdateDialog from './lib/UpdateDialog.svelte'
   import Settings from './lib/Settings.svelte'
   import Splash from './lib/Splash.svelte'
   import StartPanel from './lib/StartPanel.svelte'
@@ -14,7 +15,7 @@
   import { tagline } from './lib/brand'
   import { resolveLocale, setLocale, t } from './lib/i18n/index.svelte'
   import { stamp } from './lib/time'
-  import type { Config, LoadResult, Overview, Recent } from './lib/types'
+  import type { Config, LoadResult, Overview, Recent, UpdateInfo } from './lib/types'
 
   type View = 'loading' | 'setup' | 'login' | 'main' | 'settings'
 
@@ -28,6 +29,8 @@
   let now = $state(Date.now())
   let splash = $state(true)
   let showAbout = $state(false)
+  let update = $state<UpdateInfo | null>(null)
+  let showUpdate = $state(false)
   // A load that failed because the session expired; retried after login.
   let pending: { accountId: string; role: string } | null = null
 
@@ -65,6 +68,17 @@
     const offRenewError = onBackendEvent('renew-error', (msg) => {
       error = errorMessage(msg)
     })
+    // New versions: at start and twice a day. Failures stay quiet: it's only
+    // a notice, and the network may block GitHub.
+    const checkUpdate = async () => {
+      try {
+        update = await api.CheckUpdate()
+      } catch {
+        // ignore
+      }
+    }
+    setTimeout(checkUpdate, 3_000)
+    const updateTick = setInterval(checkUpdate, 12 * 3_600_000)
     ;(async () => {
       try {
         overview = await api.Overview()
@@ -77,6 +91,7 @@
     })()
     return () => {
       clearInterval(tick)
+      clearInterval(updateTick)
       offOverview()
       offRenewError()
     }
@@ -221,6 +236,8 @@
           onRenew={renew}
           onLogin={() => (view = 'login')}
           onAbout={() => (showAbout = true)}
+          {update}
+          onUpdate={() => (showUpdate = true)}
           onShowActive={() => (selectedId = overview?.active?.accountId ?? null)}
         />
         <div class="flex min-h-0 grow">
@@ -271,5 +288,8 @@
   {/if}
   {#if showAbout}
     <About onClose={() => (showAbout = false)} />
+  {/if}
+  {#if showUpdate && update?.available}
+    <UpdateDialog info={update} current={overview?.version ?? ''} onClose={() => (showUpdate = false)} />
   {/if}
 </div>

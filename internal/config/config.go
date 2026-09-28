@@ -69,9 +69,11 @@ type CodeArtifact struct {
 type Preferences struct {
 	ProfileMode string `json:"profileMode"`
 	AutoRenew   bool   `json:"autoRenew"`
-	Theme       string `json:"theme"`    // dark (default) | light | system
-	Language    string `json:"language"` // system | en | pt-BR
-	ProdPattern string `json:"prodPattern"`
+	// CheckUpdates looks for a newer release on GitHub (docs/adr/0024).
+	CheckUpdates bool   `json:"checkUpdates"`
+	Theme        string `json:"theme"`    // dark (default) | light | system
+	Language     string `json:"language"` // system | en | pt-BR
+	ProdPattern  string `json:"prodPattern"`
 }
 
 // Proxy is how PickRole reaches AWS. Mode is awsenv.ProxySystem (the
@@ -114,11 +116,12 @@ func Default() Config {
 		},
 		Proxy: Proxy{Mode: awsenv.ProxySystem},
 		Preferences: Preferences{
-			ProfileMode: ProfileDefault,
-			AutoRenew:   true,
-			Theme:       "dark",
-			Language:    "system",
-			ProdPattern: DefaultProdPattern,
+			ProfileMode:  ProfileDefault,
+			AutoRenew:    true,
+			CheckUpdates: true,
+			Theme:        "dark",
+			Language:     "system",
+			ProdPattern:  DefaultProdPattern,
 		},
 	}
 }

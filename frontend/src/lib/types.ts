@@ -18,6 +18,22 @@ export interface Maven {
   settingsPath: string
 }
 
+/** Mirrors app.UpdateInfo. */
+export interface UpdateInfo {
+  available: boolean
+  version: string
+  /** The release page, with the notes. */
+  url: string
+  /** PickRole can install it itself; otherwise the dialog links to the page. */
+  canInstall: boolean
+}
+
+/** Mirrors app.UpdateResult: returned only when the install needs a terminal. */
+export interface UpdateResult {
+  manualCommand: string
+  reason: string
+}
+
 /** Mirrors maven.Detection: what DetectMaven found in settings.xml. */
 export interface MavenDetection {
   serverIds: string[]
@@ -42,6 +58,8 @@ export interface CodeArtifact {
 export interface Preferences {
   profileMode: ProfileMode
   autoRenew: boolean
+  /** Look for a newer release on GitHub. */
+  checkUpdates: boolean
   theme: Theme
   /** 'system' follows the OS language. */
   language: 'system' | 'en' | 'pt-BR'

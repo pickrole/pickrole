@@ -7,6 +7,10 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- New-version notice and updates from the app: a badge in the header when a newer release is out. **Update now**
+  downloads the right package, checks it against `SHA256SUMS`, installs it and restarts (Windows), or installs it
+  through the system password prompt (Linux), with a ready-to-paste command when that isn't possible.
+  **Settings → Preferences → Check for new versions** turns it off.
 - Automatic renewal: while PickRole is open, the active profile is loaded again a few minutes before its credentials
   expire, with a new CodeArtifact token, and the SSO session is renewed with its refresh token when needed. Terminals
   no longer break when the role credentials expire. It doesn't change the recent list, and **Settings → Preferences**

@@ -1,4 +1,15 @@
-import type { About, Config, ConnectionTest, DeviceAuth, LoadResult, MavenDetection, Overview, SSO } from './types'
+import type {
+  About,
+  Config,
+  ConnectionTest,
+  DeviceAuth,
+  LoadResult,
+  MavenDetection,
+  Overview,
+  SSO,
+  UpdateInfo,
+  UpdateResult,
+} from './types'
 import { mock } from './mock'
 
 // Bridge to the Go backend (internal/app.Service). Wails exposes bound
@@ -26,6 +37,8 @@ type Backend = {
   CopyExport(): Promise<void>
   SetLanguage(lang: string): Promise<void>
   About(): Promise<About>
+  CheckUpdate(): Promise<UpdateInfo>
+  ApplyUpdate(): Promise<UpdateResult>
 }
 
 declare global {
