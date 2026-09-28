@@ -221,3 +221,25 @@ func TestDownloadFollowsAllowedRedirects(t *testing.T) {
 		t.Error("followed a redirect to a host that isn't allowed")
 	}
 }
+
+// A security fix in any release between the running version and the newest
+// marks the update, so skipping versions doesn't hide it; one in a release
+// already installed doesn't.
+func TestNewerSecurity(t *testing.T) {
+	releases := []map[string]any{
+		{"tag_name": "v0.2.0-beta.3", "prerelease": true, "body": "### Security\n\n- An old fix."},
+		{"tag_name": "v0.2.0-beta.5", "prerelease": true, "body": "### Fixed\n\n- Something."},
+		{"tag_name": "v0.2.0-beta.6", "prerelease": true, "body": "Intro.\r\n\r\n### Security\r\n\r\n- Built with a patched Go."},
+		{"tag_name": "v0.2.0-beta.7", "prerelease": true, "body": "### Added\n\n- A feature. Mentions security in passing."},
+	}
+	src := fakeGitHub(t, releases, nil)
+	ctx := context.Background()
+
+	rel, err := src.Newer(ctx, mustVersion(t, "0.2.0-beta.5"))
+	if err != nil || rel == nil || rel.Version.String() != "0.2.0-beta.7" || !rel.Security {
+		t.Errorf("from beta.5: want beta.7 with a security fix on the way, got %+v, %v", rel, err)
+	}
+	if rel, _ := src.Newer(ctx, mustVersion(t, "0.2.0-beta.6")); rel == nil || rel.Security {
+		t.Errorf("from beta.6: the fix is already installed, got %+v", rel)
+	}
+}

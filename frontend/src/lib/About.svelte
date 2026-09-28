@@ -138,11 +138,19 @@
       {:else if about}
         <div aria-live="polite" class="mb-4">
           {#if update?.available}
-            <div class="flex items-center gap-3 rounded-[10px] border border-accent-line bg-accent-soft px-3.5 py-2.5">
-              <span class="size-2 shrink-0 rounded-full bg-accent"></span>
-              <span class="grow text-accent-soft-fg">{t('about.updateAvailable', { version: update.version })}</span>
-              <button class="h-8 rounded-lg bg-accent px-3 font-semibold text-accent-ink" onclick={onUpdate}
-                >{t('about.update')}</button
+            {@const sec = update.security}
+            <div
+              class="flex items-center gap-3 rounded-[10px] border px-3.5 py-2.5 {sec
+                ? 'border-warn-line bg-warn-soft'
+                : 'border-accent-line bg-accent-soft'}"
+            >
+              <span class="size-2 shrink-0 rounded-full {sec ? 'bg-warn' : 'bg-accent'}"></span>
+              <span class="grow {sec ? 'text-warn-fg' : 'text-accent-soft-fg'}"
+                >{t(sec ? 'about.securityUpdateAvailable' : 'about.updateAvailable', { version: update.version })}</span
+              >
+              <button
+                class="h-8 rounded-lg px-3 font-semibold {sec ? 'bg-warn text-warn-ink' : 'bg-accent text-accent-ink'}"
+                onclick={onUpdate}>{t('about.update')}</button
               >
             </div>
           {:else}

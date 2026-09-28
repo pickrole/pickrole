@@ -68,7 +68,9 @@
   >
     <div class="flex items-start gap-3">
       <div class="flex grow flex-col gap-1">
-        <h2 id="update-title" class="font-display text-lg font-semibold">{t('update.title')}</h2>
+        <h2 id="update-title" class="font-display text-lg font-semibold">
+          {info.security ? t('update.securityTitle') : t('update.title')}
+        </h2>
         <p class="font-mono text-[13px] text-muted">{current} → <span class="text-accent-soft-fg">{info.version}</span></p>
       </div>
       <button
@@ -85,6 +87,12 @@
     <button class="flex w-fit items-center gap-1 text-[13px] text-accent-soft-fg hover:underline" onclick={() => api.OpenURL(info.url)}>
       {t('update.notes')}<Icon name="external" size={12} />
     </button>
+
+    {#if info.security}
+      <p class="rounded-[10px] border border-warn-line bg-warn-soft px-3.5 py-2.5 text-[13px] leading-normal text-warn-fg">
+        {t('update.securityNote')}
+      </p>
+    {/if}
 
     <div aria-live="polite" class="flex flex-col gap-2 text-[13px] leading-normal">
       {#if step === 'working'}

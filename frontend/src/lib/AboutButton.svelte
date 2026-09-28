@@ -7,7 +7,11 @@
 
   let { update, onAbout }: { update: UpdateInfo | null; onAbout: () => void } = $props()
 
-  const label = $derived(update?.available ? t('about.titleUpdate') : t('about.title'))
+  // Accent for a regular update; the warning color for a security fix
+  // (docs/adr/0025). Red stays reserved for production.
+  const label = $derived(
+    update?.available ? (update.security ? t('about.titleSecurityUpdate') : t('about.titleUpdate')) : t('about.title'),
+  )
 </script>
 
 <button
@@ -18,7 +22,9 @@
 >
   <Icon name="info" size={15} />
   {#if update?.available}
-    <span class="absolute -top-[3px] -right-[3px] size-[9px] rounded-full border-2 border-bg bg-accent" aria-hidden="true"
+    <span
+      class="absolute -top-[3px] -right-[3px] size-[9px] rounded-full border-2 border-bg {update.security ? 'bg-warn' : 'bg-accent'}"
+      aria-hidden="true"
     ></span>
   {/if}
 </button>

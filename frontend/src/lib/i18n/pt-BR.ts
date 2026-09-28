@@ -95,12 +95,16 @@ export const ptBR: Messages = {
 
   // Atualizações
   'about.titleUpdate': 'Sobre o PickRole: há uma versão nova',
+  'about.titleSecurityUpdate': 'Sobre o PickRole: há uma atualização de segurança',
+  'about.securityUpdateAvailable': 'Atualização de segurança: a versão {version} está disponível',
   'about.updateAvailable': 'A versão {version} está disponível',
   'about.update': 'Atualizar',
   'about.checkUpdates': 'Procurar atualizações',
   'about.checking': 'Procurando…',
   'about.upToDate': 'Você está na versão mais recente.',
   'update.title': 'Nova versão disponível',
+  'update.securityTitle': 'Atualização de segurança disponível',
+  'update.securityNote': 'Esta atualização corrige um problema de segurança. Instale assim que puder.',
   'update.close': 'Fechar',
   'update.notes': 'O que mudou',
   'update.explain':

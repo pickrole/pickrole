@@ -22,6 +22,9 @@ type UpdateInfo struct {
 	// CanInstall is true when PickRole can install it itself (the Windows
 	// .exe, or the RPM/.deb in /usr/bin); otherwise the UI links to the page.
 	CanInstall bool `json:"canInstall"`
+	// Security is true when the update includes a security fix: the notice
+	// then uses the warning color (docs/adr/0025).
+	Security bool `json:"security"`
 }
 
 // UpdateResult is the result of ApplyUpdate that isn't a restart.
@@ -74,6 +77,7 @@ func (s *Service) CheckUpdate(manual bool) (UpdateInfo, error) {
 		Version:    rel.Version.String(),
 		URL:        rel.URL,
 		CanInstall: inst.Supported() && rel.Assets[inst.Asset(rel.Version)] != "",
+		Security:   rel.Security,
 	}, nil
 }
 

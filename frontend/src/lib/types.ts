@@ -26,6 +26,8 @@ export interface UpdateInfo {
   url: string
   /** PickRole can install it itself; otherwise the dialog links to the page. */
   canInstall: boolean
+  /** The update includes a security fix: shown in the warning color. */
+  security: boolean
 }
 
 /** Mirrors app.UpdateResult: returned only when the install needs a terminal. */

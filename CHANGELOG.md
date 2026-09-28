@@ -8,7 +8,8 @@ follow [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - The new-version notice moved from a header badge to the **About** button, which gets a dot; About shows the new
-  version with **Update**, and **Check for updates** checks right away.
+  version with **Update**, and **Check for updates** checks right away. Updates that fix a security issue (a
+  `Security` section in their release notes) show in orange and say so.
 
 ## [0.2.0-beta.6] - 2026-09-28
 
