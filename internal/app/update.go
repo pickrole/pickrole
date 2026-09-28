@@ -25,6 +25,9 @@ type UpdateInfo struct {
 	// Security is true when the update includes a security fix: the notice
 	// then uses the warning color (docs/adr/0025).
 	Security bool `json:"security"`
+	// TerminalInstall is true where privileges go through pbrun: PickRole
+	// downloads and checks the package, and shows the command to install it.
+	TerminalInstall bool `json:"terminalInstall"`
 }
 
 // UpdateResult is the result of ApplyUpdate that isn't a restart.
@@ -73,11 +76,12 @@ func (s *Service) CheckUpdate(manual bool) (UpdateInfo, error) {
 	}
 	inst := detectInstallation()
 	return UpdateInfo{
-		Available:  true,
-		Version:    rel.Version.String(),
-		URL:        rel.URL,
-		CanInstall: inst.Supported() && rel.Assets[inst.Asset(rel.Version)] != "",
-		Security:   rel.Security,
+		Available:       true,
+		Version:         rel.Version.String(),
+		URL:             rel.URL,
+		CanInstall:      inst.Supported() && rel.Assets[inst.Asset(rel.Version)] != "",
+		Security:        rel.Security,
+		TerminalInstall: inst.TerminalInstall(),
 	}, nil
 }
 
@@ -113,7 +117,11 @@ func (s *Service) ApplyUpdate() (UpdateResult, error) {
 	if err := inst.Apply(pkg); err != nil {
 		var manual *update.ManualError
 		if errors.As(err, &manual) {
-			return UpdateResult{ManualCommand: manual.Command, Reason: manual.Error()}, nil
+			reason := manual.Error()
+			if errors.Is(err, update.ErrTerminalInstall) {
+				reason = i18n.T("update.pbrun")
+			}
+			return UpdateResult{ManualCommand: manual.Command, Reason: reason}, nil
 		}
 		return UpdateResult{}, i18n.Wrap("update.install", err)
 	}

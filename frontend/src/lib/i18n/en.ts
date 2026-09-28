@@ -119,6 +119,9 @@ export const en = {
     'PickRole downloads it, checks it against the release checksums, installs it and restarts. On Linux the system asks for your password.',
   'update.notSupported': 'This installation can\'t update itself. Download the new version from the release page.',
   'update.install': 'Update now',
+  'update.prepare': 'Download and check',
+  'update.explainTerminal':
+    'PickRole downloads it and checks it against the release checksums; you install it with the pbrun command it shows, then open PickRole again.',
   'update.retry': 'Try again',
   'update.later': 'Later',
   'update.working': 'Downloading and checking…',

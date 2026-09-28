@@ -28,6 +28,8 @@ export interface UpdateInfo {
   canInstall: boolean
   /** The update includes a security fix: shown in the warning color. */
   security: boolean
+  /** Privileges go through pbrun: PickRole downloads and checks, the user installs from a terminal. */
+  terminalInstall: boolean
 }
 
 /** Mirrors app.UpdateResult: returned only when the install needs a terminal. */

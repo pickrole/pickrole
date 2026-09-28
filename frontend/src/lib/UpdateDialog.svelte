@@ -119,6 +119,8 @@
         <span class="text-prod-fg" role="alert">{error}</span>
       {:else if !info.canInstall}
         <span class="text-muted">{t('update.notSupported')}</span>
+      {:else if info.terminalInstall}
+        <span class="text-muted">{t('update.explainTerminal')}</span>
       {:else}
         <span class="text-muted">{t('update.explain')}</span>
       {/if}
@@ -128,7 +130,7 @@
       {#if info.canInstall && (step === 'ready' || step === 'error')}
         <button class="h-[38px] rounded-lg border border-line-strong px-4 text-sm" onclick={onClose}>{t('update.later')}</button>
         <button class="h-[38px] rounded-lg bg-accent px-[18px] text-sm font-semibold text-accent-ink" onclick={install}
-          >{step === 'error' ? t('update.retry') : t('update.install')}</button
+          >{step === 'error' ? t('update.retry') : info.terminalInstall ? t('update.prepare') : t('update.install')}</button
         >
       {:else if step !== 'working'}
         <button class="h-[38px] rounded-lg bg-accent px-[18px] text-sm font-semibold text-accent-ink" onclick={() => api.OpenURL(info.url)}
