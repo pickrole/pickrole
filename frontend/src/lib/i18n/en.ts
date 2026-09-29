@@ -55,6 +55,7 @@ export const en = {
   'accounts.noMatch': 'No account matches “{query}”.',
 
   // Start panel
+  'accounts.home': 'Home',
   'start.continue': 'Pick up where you left off',
   'start.used': 'Used {when}',
   'start.recent': 'Recent',

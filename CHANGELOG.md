@@ -5,6 +5,13 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0-beta.12] - 2026-09-29
+
+### Added
+
+- A **Home** entry at the top of the account list goes back to the start screen (continue where you left off, recent
+  profiles) after picking an account. `Esc` still does the same.
+
 ## [0.2.0-beta.11] - 2026-09-29
 
 A documentation-only release, to try the update flow of 0.2.0-beta.10.
@@ -191,7 +198,8 @@ First release, published before this repository became public.
 - On Linux, the GNOME proxy settings aren't read: use `HTTPS_PROXY`.
 - The binaries aren't signed.
 
-[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.11...HEAD
+[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.12...HEAD
+[0.2.0-beta.12]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.11...v0.2.0-beta.12
 [0.2.0-beta.11]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.10...v0.2.0-beta.11
 [0.2.0-beta.10]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.9...v0.2.0-beta.10
 [0.2.0-beta.9]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.8...v0.2.0-beta.9

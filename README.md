@@ -33,7 +33,8 @@ credentials to `default`.
 
 - Browser sign-in with a device code, and session renewal without opening the browser again.
 - Cached account list: the first start fetches everything from AWS, later starts are instant. One button refreshes it.
-- **Pick up where you left off**: your last profile is one Enter away.
+- **Pick up where you left off**: your last profile is one Enter away, on the **Home** screen at the top of the account
+  list (or `Esc`).
 - Search (`Ctrl K`), favorites and recent profiles.
 - Production accounts stand out, and loading a role in production asks for confirmation unless its name says it only
   reads (`ReadOnly`, `ViewOnly`, `SecurityAudit`, `Billing`).
@@ -85,16 +86,16 @@ Find the version and the package for your distribution on the [releases page](ht
    curl -LO "https://github.com/pickrole/pickrole/releases/download/<version>/<file>"
    ```
 
-   For example, for `v0.2.0-beta.11` on RHEL:
+   For example, for `v0.2.0-beta.12` on RHEL:
 
    ```bash
-   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.11/pickrole_0.2.0-beta.11_el8_x86_64.rpm"
+   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.12/pickrole_0.2.0-beta.12_el8_x86_64.rpm"
    ```
 
 2. Download `SHA256SUMS` from the same release:
 
    ```bash
-   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.11/SHA256SUMS"
+   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.12/SHA256SUMS"
    ```
 
 3. Check that the file wasn't corrupted or tampered with. `SHA256SUMS` lists a fingerprint for every file in the
@@ -111,7 +112,7 @@ Find the version and the package for your distribution on the [releases page](ht
 4. Install it:
 
    ```bash
-   sudo dnf install ./pickrole_0.2.0-beta.11_el8_x86_64.rpm
+   sudo dnf install ./pickrole_0.2.0-beta.12_el8_x86_64.rpm
    ```
 
    Use `apt install` instead of `dnf install` for a `.deb`.

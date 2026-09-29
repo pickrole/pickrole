@@ -50,6 +50,7 @@ export const ptBR: Messages = {
   'accounts.emptyCache': 'Nenhuma conta no cache ainda.',
   'accounts.noMatch': 'Nenhuma conta com “{query}”.',
 
+  'accounts.home': 'Início',
   'start.continue': 'Continuar de onde parou',
   'start.used': 'Usado {when}',
   'start.recent': 'Recentes',
