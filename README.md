@@ -85,16 +85,16 @@ Find the version and the package for your distribution on the [releases page](ht
    curl -LO "https://github.com/pickrole/pickrole/releases/download/<version>/<file>"
    ```
 
-   For example, for `v0.2.0-beta.9` on RHEL:
+   For example, for `v0.2.0-beta.10` on RHEL:
 
    ```bash
-   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.9/pickrole_0.2.0-beta.9_el8_x86_64.rpm"
+   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.10/pickrole_0.2.0-beta.10_el8_x86_64.rpm"
    ```
 
 2. Download `SHA256SUMS` from the same release:
 
    ```bash
-   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.9/SHA256SUMS"
+   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.10/SHA256SUMS"
    ```
 
 3. Check that the file wasn't corrupted or tampered with. `SHA256SUMS` lists a fingerprint for every file in the
@@ -111,7 +111,7 @@ Find the version and the package for your distribution on the [releases page](ht
 4. Install it:
 
    ```bash
-   sudo dnf install ./pickrole_0.2.0-beta.9_el8_x86_64.rpm
+   sudo dnf install ./pickrole_0.2.0-beta.10_el8_x86_64.rpm
    ```
 
    Use `apt install` instead of `dnf install` for a `.deb`.
