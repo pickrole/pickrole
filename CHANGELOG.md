@@ -5,6 +5,14 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0-beta.11] - 2026-09-29
+
+A documentation-only release, to try the update flow of 0.2.0-beta.10.
+
+### Changed
+
+- The README says when PickRole looks for new versions (at start and every 12 hours) and how to look right away.
+
 ## [0.2.0-beta.10] - 2026-09-29
 
 On machines where administrator commands go through `pbrun`, updating to this version still means copying the command
@@ -183,7 +191,8 @@ First release, published before this repository became public.
 - On Linux, the GNOME proxy settings aren't read: use `HTTPS_PROXY`.
 - The binaries aren't signed.
 
-[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.10...HEAD
+[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.11...HEAD
+[0.2.0-beta.11]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.10...v0.2.0-beta.11
 [0.2.0-beta.10]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.9...v0.2.0-beta.10
 [0.2.0-beta.9]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.8...v0.2.0-beta.9
 [0.2.0-beta.8]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.7...v0.2.0-beta.8

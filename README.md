@@ -85,16 +85,16 @@ Find the version and the package for your distribution on the [releases page](ht
    curl -LO "https://github.com/pickrole/pickrole/releases/download/<version>/<file>"
    ```
 
-   For example, for `v0.2.0-beta.10` on RHEL:
+   For example, for `v0.2.0-beta.11` on RHEL:
 
    ```bash
-   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.10/pickrole_0.2.0-beta.10_el8_x86_64.rpm"
+   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.11/pickrole_0.2.0-beta.11_el8_x86_64.rpm"
    ```
 
 2. Download `SHA256SUMS` from the same release:
 
    ```bash
-   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.10/SHA256SUMS"
+   curl -LO "https://github.com/pickrole/pickrole/releases/download/v0.2.0-beta.11/SHA256SUMS"
    ```
 
 3. Check that the file wasn't corrupted or tampered with. `SHA256SUMS` lists a fingerprint for every file in the
@@ -111,7 +111,7 @@ Find the version and the package for your distribution on the [releases page](ht
 4. Install it:
 
    ```bash
-   sudo dnf install ./pickrole_0.2.0-beta.10_el8_x86_64.rpm
+   sudo dnf install ./pickrole_0.2.0-beta.11_el8_x86_64.rpm
    ```
 
    Use `apt install` instead of `dnf install` for a `.deb`.
@@ -128,14 +128,13 @@ you. Hand it a prompt such as:
 
 ### Updating
 
-PickRole tells you when a new version is out: the **About** button gets a dot, and About shows the new version with
-**Update**, or **Check for updates** to look right away. **Update now** downloads the package for
-your installation, checks it against the release's `SHA256SUMS` and installs it: on Windows it replaces the `.exe` and
+PickRole looks for a new version when it starts and every 12 hours after that. When one is out, the **About** button
+gets a dot, and About shows the new version with **Update**; to look right away, use **Check for updates** in About.
+**Update now** downloads the package for your installation, checks it against the release's `SHA256SUMS` and installs it: on Windows it replaces the `.exe` and
 restarts; on Linux the system asks for your password, or PickRole shows the `sudo dnf install …` command to run. On
 machines where administrator commands go through `pbrun`, PickRole opens a terminal running `pbrun dnf install …`
 and restarts by itself once it's done. When a new version is installed some other way while PickRole is open, About
-offers **Restart**. A
-`.tar.gz` install gets the link to the release page. **Settings → Preferences → Check for new versions** turns the
+offers **Restart**. A `.tar.gz` install gets the link to the release page. **Settings → Preferences → Check for new versions** turns the
 check off.
 
 ### Proxy
