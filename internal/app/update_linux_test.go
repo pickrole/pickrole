@@ -124,17 +124,18 @@ func waitFor(t *testing.T, what string, ok func() bool) {
 	t.Fatal("timed out waiting for " + what)
 }
 
-func fastInstallCheck(t *testing.T) {
-	prev := installCheckEvery
-	installCheckEvery = 20 * time.Millisecond
-	t.Cleanup(func() { installCheckEvery = prev })
+func withInstallTimes(t *testing.T, times installTiming) {
+	prev := installTimes
+	installTimes = times
+	t.Cleanup(func() { installTimes = prev })
 }
 
 // On a pbrun machine with a terminal, PickRole opens it running the install
 // command, and restarts by itself once the new version is in place.
 func TestApplyUpdateLinuxPbrunOpensATerminal(t *testing.T) {
 	isolate(t)
-	fastInstallCheck(t)
+	// The usual check is hours away: only the one the install starts counts.
+	withInstallTimes(t, installTiming{every: time.Hour, fast: 20 * time.Millisecond, wait: time.Minute})
 	bin := t.TempDir()
 	argsFile := filepath.Join(bin, "terminal-args")
 	if err := os.WriteFile(filepath.Join(bin, "gnome-terminal"), []byte("#!/bin/sh\nprintf '%s\n' \"$@\" > "+argsFile+"\n"), 0o755); err != nil {
@@ -209,7 +210,7 @@ func TestApplyUpdateLinuxPbrunWithoutTerminal(t *testing.T) {
 // PickRole doesn't restart on its own.
 func TestInstalledWhileOpen(t *testing.T) {
 	isolate(t)
-	fastInstallCheck(t)
+	withInstallTimes(t, installTiming{every: 20 * time.Millisecond, fast: time.Hour, wait: time.Hour})
 	exe := filepath.Join(t.TempDir(), "pickrole")
 	if err := os.WriteFile(exe, []byte("old version"), 0o755); err != nil {
 		t.Fatal(err)

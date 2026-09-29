@@ -13,8 +13,8 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- When a new version is installed while PickRole is open (from a terminal, for instance), the **About** button gets a
-  dot and About offers **Restart**, instead of running the old version until it's reopened.
+- When a new version is installed some other way while PickRole is open, the **About** button gets a dot and About
+  offers **Restart** (checked every few hours; updates are meant to go through PickRole).
 
 ## [0.2.0-beta.9] - 2026-09-28
 

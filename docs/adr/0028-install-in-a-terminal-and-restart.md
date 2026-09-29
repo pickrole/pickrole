@@ -18,9 +18,10 @@ program can't install silently there, and it shouldn't try.
   (or `apt install`) command. The user only answers `pbrun` if it asks. When the install fails, the window stays open
   so the error can be read. The command is still shown, in case no terminal appears; with no terminal found, it's the
   only option, as before.
-- On Linux, PickRole watches its executable (every few seconds; a package manager puts a new file in its place). After
-  an update started from PickRole, it restarts into the new version by itself. When the new version was installed
-  some other way, the **About** button gets the dot and About offers **Restart**.
+- On Linux, PickRole watches its executable (a package manager puts a new file in its place). After an update started
+  from PickRole it looks every few seconds, for up to 30 minutes, and restarts into the new version by itself.
+  Otherwise it looks only every 3 hours, since updates are meant to go through PickRole: when a version was installed
+  some other way, the **About** button gets the dot and About offers **Restart** (reopening PickRole works too).
 - Local builds (version `dev`) aren't watched, and Windows doesn't need it: there the update already restarts
   PickRole.
 

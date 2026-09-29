@@ -147,6 +147,10 @@ func (s *Service) ApplyUpdate() (UpdateResult, error) {
 				s.mu.Lock()
 				s.restartWhenInstalled = true
 				s.mu.Unlock()
+				select {
+				case s.installing <- struct{}{}:
+				default:
+				}
 				return UpdateResult{ManualCommand: manual.Command, Terminal: true}, nil
 			}
 			reason := manual.Error()
@@ -177,23 +181,41 @@ func (s *Service) installWatch() *update.Watch {
 	return update.NewWatch(detectInstallation().Exe)
 }
 
-// installCheckEvery is how often watchInstall looks at the executable.
-var installCheckEvery = 3 * time.Second
+// installTiming is how often watchInstall looks at the executable: rarely,
+// since updates are meant to go through PickRole, and often only while an
+// install PickRole started in a terminal is under way.
+type installTiming struct {
+	every time.Duration // normally
+	fast  time.Duration // while the terminal install runs
+	wait  time.Duration // how long an install may take
+}
+
+// Replaced in tests.
+var installTimes = installTiming{every: 3 * time.Hour, fast: 2 * time.Second, wait: 30 * time.Minute}
 
 // watchInstall notices when a new version is installed while PickRole is
-// open (from the terminal PickRole opened, or by hand): the running process
-// is still the old one. After an update started here it restarts right
-// away; otherwise the UI offers to restart (event "update-installed").
-func (s *Service) watchInstall(ctx context.Context, w *update.Watch, every time.Duration) {
-	t := time.NewTicker(every)
+// open: the running process is still the old one. After an update started
+// here (s.installing) it looks every few seconds and restarts as soon as the
+// new version is in place. Otherwise it looks every few hours and the UI
+// offers to restart (event "update-installed").
+func (s *Service) watchInstall(ctx context.Context, w *update.Watch, times installTiming) {
+	var until time.Time
+	t := time.NewTimer(times.every)
 	defer t.Stop()
 	for {
 		select {
 		case <-ctx.Done():
 			return
+		case <-s.installing:
+			until = time.Now().Add(times.wait)
 		case <-t.C:
 		}
 		if !w.Replaced() {
+			next := times.every
+			if time.Now().Before(until) {
+				next = times.fast
+			}
+			t.Reset(next)
 			continue
 		}
 		// Let the package manager finish before starting the new version.
