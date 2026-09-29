@@ -28,14 +28,18 @@ export interface UpdateInfo {
   canInstall: boolean
   /** The update includes a security fix: shown in the warning color. */
   security: boolean
-  /** Privileges go through pbrun: PickRole downloads and checks, the user installs from a terminal. */
+  /** Privileges go through pbrun: PickRole downloads and checks, and installs in a terminal it opens. */
   terminalInstall: boolean
+  /** Set by the UI, not the backend: a new version was installed while PickRole was open ("update-installed"). */
+  installed?: boolean
 }
 
 /** Mirrors app.UpdateResult: returned only when the install needs a terminal. */
 export interface UpdateResult {
   manualCommand: string
   reason: string
+  /** The install runs in a terminal PickRole opened; it restarts when done. */
+  terminal: boolean
 }
 
 /** Mirrors maven.Detection: what DetectMaven found in settings.xml. */

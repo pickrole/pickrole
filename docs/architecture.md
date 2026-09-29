@@ -40,7 +40,7 @@ flowchart LR
 | `internal/maven` | Edits the configured `<server>` entries of `settings.xml` as text, keeping its formatting; `.pickrole.bak` backup. Detects which entries need the CodeArtifact token ([ADR 0022](adr/0022-several-maven-servers.md)). |
 | `internal/config` | PickRole's `config.json`, validation, production-account pattern, `sso-session` detection in `~/.aws/config`. |
 | `internal/store` | Account cache, recents, favorites, active profile, CodeArtifact access per role. |
-| `internal/update` | New-version check on GitHub (API, or the release feed when the API refuses: [ADR 0027](adr/0027-release-feed-fallback.md)), download checked against `SHA256SUMS`, install (Windows `.exe` swap, `pkexec` + dnf/apt on Linux) and restart ([ADR 0024](adr/0024-updates-from-the-app.md)). |
+| `internal/update` | New-version check on GitHub (API, or the release feed when the API refuses: [ADR 0027](adr/0027-release-feed-fallback.md)), download checked against `SHA256SUMS`, install (Windows `.exe` swap, `pkexec` + dnf/apt on Linux, or a terminal running `pbrun`: [ADR 0028](adr/0028-install-in-a-terminal-and-restart.md)), restart ([ADR 0024](adr/0024-updates-from-the-app.md)), and noticing a version installed while open. |
 | `internal/awsenv` | Client endpoint (`AWS_ENDPOINT_URL*`) and proxy: the setting in the config, the environment variables, the Windows or GNOME settings, and the connection test ([ADR 0012](adr/0012-proxy.md), [ADR 0020](adr/0020-proxy-settings-and-gnome.md)). |
 | `internal/clipboard` | Copies secrets out of the Windows clipboard history ([ADR 0014](adr/0014-secrets-out-of-clipboard-history.md)). |
 | `internal/i18n` | Backend messages in English and Portuguese ([ADR 0018](adr/0018-english-first-localized-ui.md)). |

@@ -167,7 +167,11 @@ export const mock = {
     return {
       manualCommand: "sudo dnf install '/home/you/.cache/pickrole/updates/pickrole_0.2.0-beta.9_el8_x86_64.rpm'",
       reason: 'exit status 126: Not authorized',
+      terminal: false,
     }
+  },
+  async RestartApp() {
+    location.reload()
   },
   async About(): Promise<About> {
     return {

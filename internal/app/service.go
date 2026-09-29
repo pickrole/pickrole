@@ -117,6 +117,9 @@ type Service struct {
 
 	// newer is the newer release found by CheckUpdate.
 	newer *update.Release
+	// restartWhenInstalled is set when ApplyUpdate opened a terminal to
+	// install: PickRole restarts as soon as the new version is in place.
+	restartWhenInstalled bool
 }
 
 // New returns the service and the function that starts it once the
@@ -142,6 +145,7 @@ func (s *Service) start(ctx context.Context, p Platform) {
 	s.snapshot, _, _ = store.LoadSnapshot()
 	s.resetClient()
 	go s.renewLoop(ctx)
+	go s.watchInstall(ctx)
 }
 
 func (s *Service) resetClient() {

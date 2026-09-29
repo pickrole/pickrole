@@ -131,8 +131,10 @@ you. Hand it a prompt such as:
 PickRole tells you when a new version is out: the **About** button gets a dot, and About shows the new version with
 **Update**, or **Check for updates** to look right away. **Update now** downloads the package for
 your installation, checks it against the release's `SHA256SUMS` and installs it: on Windows it replaces the `.exe` and
-restarts; on Linux the system asks for your password, or PickRole shows the `sudo dnf install …` command to run
-(`pbrun dnf install …` on machines where administrator commands go through `pbrun`). A
+restarts; on Linux the system asks for your password, or PickRole shows the `sudo dnf install …` command to run. On
+machines where administrator commands go through `pbrun`, PickRole opens a terminal running `pbrun dnf install …`
+and restarts by itself once it's done. When a new version is installed some other way while PickRole is open, About
+offers **Restart**. A
 `.tar.gz` install gets the link to the release page. **Settings → Preferences → Check for new versions** turns the
 check off.
 

@@ -69,6 +69,15 @@
     const offRenewError = onBackendEvent('renew-error', (msg) => {
       error = errorMessage(msg)
     })
+    // A new version was installed while PickRole was open (from a terminal):
+    // About offers to restart into it.
+    const offInstalled = onBackendEvent('update-installed', () => {
+      update = {
+        ...(update ?? { version: '', url: '', canInstall: false, security: false, terminalInstall: false }),
+        available: true,
+        installed: true,
+      }
+    })
     // New versions: at start and twice a day. Failures stay quiet: it's only
     // a notice, and the network may block GitHub.
     const checkUpdate = async () => {
@@ -95,6 +104,7 @@
       clearInterval(updateTick)
       offOverview()
       offRenewError()
+      offInstalled()
     }
   })
 
@@ -292,7 +302,7 @@
       }}
     />
   {/if}
-  {#if showUpdate && update?.available}
+  {#if showUpdate && update?.available && !update.installed}
     <UpdateDialog info={update} current={overview?.version ?? ''} onClose={() => (showUpdate = false)} />
   {/if}
 </div>

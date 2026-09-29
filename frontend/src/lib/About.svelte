@@ -26,6 +26,20 @@
   let checked = $state(false)
   let checkError = $state('')
 
+  let restarting = $state(false)
+  let restartError = $state('')
+
+  async function restart() {
+    restarting = true
+    restartError = ''
+    try {
+      await api.RestartApp()
+    } catch (e) {
+      restartError = errorMessage(e)
+      restarting = false
+    }
+  }
+
   async function check() {
     checking = true
     checkError = ''
@@ -137,7 +151,22 @@
         <p class="flex items-center gap-1.5 text-prod-fg" role="alert"><Icon name="alert" size={13} />{error}</p>
       {:else if about}
         <div aria-live="polite" class="mb-4">
-          {#if update?.available}
+          {#if update?.installed}
+            <div class="flex items-center gap-3 rounded-[10px] border border-accent-line bg-accent-soft px-3.5 py-2.5">
+              <span class="size-2 shrink-0 rounded-full bg-accent"></span>
+              <span class="grow text-accent-soft-fg">{t('about.installed')}</span>
+              <button
+                class="h-8 shrink-0 rounded-lg bg-accent px-3 font-semibold whitespace-nowrap text-accent-ink"
+                onclick={restart}
+                disabled={restarting}>{t('about.restart')}</button
+              >
+            </div>
+            {#if restartError}
+              <p class="mt-2 flex gap-1.5 leading-normal text-prod-fg" role="alert">
+                <span class="mt-[3px] shrink-0"><Icon name="alert" size={13} /></span>{restartError}
+              </p>
+            {/if}
+          {:else if update?.available}
             {@const sec = update.security}
             <div
               class="flex items-center gap-3 rounded-[10px] border px-3.5 py-2.5 {sec

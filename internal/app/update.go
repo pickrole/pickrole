@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/pickrole/pickrole/internal/awsenv"
@@ -38,6 +39,10 @@ type UpdateResult struct {
 	ManualCommand string `json:"manualCommand"`
 	// Reason is why the automatic install didn't work.
 	Reason string `json:"reason"`
+	// Terminal is true when the install runs in a terminal PickRole opened
+	// (pbrun); PickRole restarts when it's done. ManualCommand is still set,
+	// in case the terminal didn't show up.
+	Terminal bool `json:"terminal"`
 }
 
 // Replaced in tests, which must not touch the running executable.
@@ -123,6 +128,7 @@ func (s *Service) ApplyUpdate() (UpdateResult, error) {
 	if !inst.Supported() {
 		return UpdateResult{}, i18n.New("update.none")
 	}
+	inst.ClosePrompt = i18n.T("update.close_terminal")
 	cache, err := os.UserCacheDir()
 	if err != nil {
 		return UpdateResult{}, i18n.Wrap("update.download", err)
@@ -137,6 +143,12 @@ func (s *Service) ApplyUpdate() (UpdateResult, error) {
 	if err := inst.Apply(pkg); err != nil {
 		var manual *update.ManualError
 		if errors.As(err, &manual) {
+			if errors.Is(err, update.ErrTerminalOpened) {
+				s.mu.Lock()
+				s.restartWhenInstalled = true
+				s.mu.Unlock()
+				return UpdateResult{ManualCommand: manual.Command, Terminal: true}, nil
+			}
 			reason := manual.Error()
 			if errors.Is(err, update.ErrTerminalInstall) {
 				reason = i18n.T("update.pbrun")
@@ -152,4 +164,64 @@ func (s *Service) ApplyUpdate() (UpdateResult, error) {
 		p.Quit()
 	}
 	return UpdateResult{}, nil
+}
+
+// installCheckEvery is how often watchInstall looks at the executable.
+var installCheckEvery = 3 * time.Second
+
+// watchInstall notices when a new version is installed while PickRole is
+// open (from the terminal PickRole opened, or by hand): the running process
+// is still the old one. After an update started here it restarts right
+// away; otherwise the UI offers to restart (event "update-installed").
+// Local builds (version "dev") aren't watched: rebuilding would count.
+// Only Linux needs it: on Windows the update itself restarts PickRole, and
+// the running .exe can't be overwritten.
+func (s *Service) watchInstall(ctx context.Context) {
+	if _, ok := update.ParseVersion(s.build.Version); !ok || runtime.GOOS != "linux" {
+		return
+	}
+	exe := detectInstallation().Exe
+	w := update.NewWatch(exe)
+	if w == nil {
+		return
+	}
+	t := time.NewTicker(installCheckEvery)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+		}
+		if !w.Replaced() {
+			continue
+		}
+		// Let the package manager finish before starting the new version.
+		time.Sleep(time.Second)
+		s.mu.Lock()
+		auto, p := s.restartWhenInstalled, s.platform
+		s.mu.Unlock()
+		if auto && s.RestartApp() == nil {
+			return
+		}
+		if p != nil {
+			p.Emit("update-installed")
+		}
+		return
+	}
+}
+
+// RestartApp starts the installed version and quits this one: after an
+// update installed while PickRole was open.
+func (s *Service) RestartApp() error {
+	s.mu.Lock()
+	p := s.platform
+	s.mu.Unlock()
+	if err := relaunch(detectInstallation().Exe); err != nil {
+		return i18n.Wrap("update.restart", err)
+	}
+	if p != nil {
+		p.Quit()
+	}
+	return nil
 }

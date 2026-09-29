@@ -48,7 +48,13 @@ func (i Installation) Apply(pkg string) error {
 	}
 	manual := func(err error) error { return &ManualError{Err: err, Command: i.ManualCommand(pkg)} }
 	if i.TerminalInstall() {
-		return manual(ErrTerminalInstall)
+		// pbrun needs a terminal: open one running the command, so there is
+		// nothing to copy (docs/adr/0028). Without a known terminal, the
+		// command is shown instead.
+		if err := openTerminal(i.terminalScript(pkg)); err != nil {
+			return manual(ErrTerminalInstall)
+		}
+		return manual(ErrTerminalOpened)
 	}
 	if _, err := exec.LookPath(args[0]); err != nil {
 		return manual(err)
@@ -76,6 +82,43 @@ func findPbrun() string {
 		}
 	}
 	return ""
+}
+
+// terminals are the emulators tried, in order, with the option that runs a
+// command. gnome-terminal is RHEL's; x-terminal-emulator is Debian's choice.
+var terminals = [][]string{
+	{"gnome-terminal", "--"},
+	{"konsole", "-e"},
+	{"xfce4-terminal", "-x"},
+	{"x-terminal-emulator", "-e"},
+	{"xterm", "-e"},
+}
+
+// openTerminal starts a terminal window running script with sh.
+func openTerminal(script string) error {
+	for _, t := range terminals {
+		path, err := exec.LookPath(t[0])
+		if err != nil {
+			continue
+		}
+		cmd := exec.Command(path, t[1], "sh", "-c", script) // #nosec G204 -- a known terminal running our own install command
+		if err := cmd.Start(); err != nil {
+			continue
+		}
+		go func() { _ = cmd.Wait() }()
+		return nil
+	}
+	return errors.New("no terminal found")
+}
+
+// terminalScript installs pkg and closes the terminal when it worked; when
+// it didn't, the window stays open so the error can be read.
+func (i Installation) terminalScript(pkg string) string {
+	prompt := i.ClosePrompt
+	if prompt == "" {
+		prompt = "Press Enter to close."
+	}
+	return i.ManualCommand(pkg) + " || { echo; echo " + shellQuote(prompt) + "; read _; }"
 }
 
 // Cleanup has nothing to do on Linux: the package manager replaced the file.
