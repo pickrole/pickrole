@@ -5,6 +5,15 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0-beta.9] - 2026-09-28
+
+A documentation-only release, to try updating from inside PickRole.
+
+### Changed
+
+- The README explains the **SSO** badge: AWS issues the sign-in token for about an hour, PickRole renews it by itself
+  while open, and the organization's session length decides when to sign in again.
+
 ## [0.2.0-beta.8] - 2026-09-28
 
 Where **Check for updates** fails with HTTP 403, install this version by hand (see the README); from here on, PickRole
@@ -158,7 +167,8 @@ First release, published before this repository became public.
 - On Linux, the GNOME proxy settings aren't read: use `HTTPS_PROXY`.
 - The binaries aren't signed.
 
-[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.8...HEAD
+[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.9...HEAD
+[0.2.0-beta.9]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.8...v0.2.0-beta.9
 [0.2.0-beta.8]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.7...v0.2.0-beta.8
 [0.2.0-beta.7]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.6...v0.2.0-beta.7
 [0.2.0-beta.6]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.5...v0.2.0-beta.6
