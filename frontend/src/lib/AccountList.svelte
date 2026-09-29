@@ -9,11 +9,14 @@
     selectedId,
     activeId,
     onSelect,
+    onHome,
   }: {
     accounts: Account[]
     selectedId: string | null
     activeId: string | null
     onSelect: (id: string) => void
+    /** Back to the start screen: continue where you left off, recents. */
+    onHome: () => void
   } = $props()
 
   let query = $state('')
@@ -60,6 +63,18 @@
     />
     <span class="rounded-[5px] border border-line px-[5px] py-[2px] font-mono text-[10.5px]">Ctrl K</span>
   </label>
+
+  <button
+    class="flex h-[38px] shrink-0 items-center gap-2.5 rounded-lg px-2.5 text-left text-sm {selectedId === null
+      ? 'bg-surface-2 font-semibold'
+      : 'font-medium text-muted hover:bg-surface hover:text-fg'}"
+    aria-current={selectedId === null ? 'page' : undefined}
+    onclick={onHome}
+  >
+    <Icon name="home" size={15} />
+    <span class="grow">{t('accounts.home')}</span>
+    <span class="rounded-[5px] border border-line px-[5px] py-[2px] font-mono text-[10.5px] font-normal text-faint">Esc</span>
+  </button>
 
   <div class="-mr-1 flex min-h-0 grow flex-col gap-4 overflow-y-auto pr-1">
     {#snippet group(title: string, list: Account[], favorite = false)}

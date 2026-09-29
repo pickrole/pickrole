@@ -252,6 +252,7 @@
               selectedId = id
               if (result?.active.accountId !== id) result = null
             }}
+            onHome={() => (selectedId = null)}
           />
           {#if selected}
             {#key selected.id}
