@@ -117,13 +117,18 @@ type Service struct {
 
 	// newer is the newer release found by CheckUpdate.
 	newer *update.Release
+	// restartWhenInstalled is set when ApplyUpdate opened a terminal to
+	// install: PickRole restarts as soon as the new version is in place.
+	restartWhenInstalled bool
+	// installing wakes watchInstall up when that install starts.
+	installing chan struct{}
 }
 
 // New returns the service and the function that starts it once the
 // desktop runtime is ready. Start is returned separately, not as a method,
 // so it is not exposed to the UI.
 func New(build Build) (*Service, func(ctx context.Context, p Platform)) {
-	s := &Service{build: build.withVCS()}
+	s := &Service{build: build.withVCS(), installing: make(chan struct{}, 1)}
 	return s, s.start
 }
 
@@ -142,6 +147,9 @@ func (s *Service) start(ctx context.Context, p Platform) {
 	s.snapshot, _, _ = store.LoadSnapshot()
 	s.resetClient()
 	go s.renewLoop(ctx)
+	if w := s.installWatch(); w != nil {
+		go s.watchInstall(ctx, w, installTimes)
+	}
 }
 
 func (s *Service) resetClient() {

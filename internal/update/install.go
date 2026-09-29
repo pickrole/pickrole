@@ -31,7 +31,14 @@ type Installation struct {
 	// (common in companies, instead of sudo). The package is then installed
 	// from a terminal: pbrun needs one, and pkexec isn't allowed there.
 	Elevator string
+	// ClosePrompt is shown in the install terminal when the install fails,
+	// in the user's language.
+	ClosePrompt string
 }
+
+// ErrTerminalOpened means the install runs in a terminal PickRole opened;
+// PickRole restarts when the new version is in place.
+var ErrTerminalOpened = errors.New("the install runs in a terminal")
 
 // ErrTerminalInstall means this machine elevates privileges through a tool
 // that needs a terminal (pbrun), so the install is left to the user.

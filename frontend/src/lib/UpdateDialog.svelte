@@ -10,7 +10,7 @@
 
   let { info, current, onClose }: { info: UpdateInfo; current: string; onClose: () => void } = $props()
 
-  let step = $state<'ready' | 'working' | 'manual' | 'error'>('ready')
+  let step = $state<'ready' | 'working' | 'terminal' | 'manual' | 'error'>('ready')
   let error = $state('')
   let command = $state('')
   let reason = $state('')
@@ -24,11 +24,13 @@
     error = ''
     try {
       const res = await api.ApplyUpdate()
-      // On success PickRole restarts; only the fallback comes back.
+      // On success PickRole restarts. With pbrun the install runs in a
+      // terminal, and PickRole restarts once it's done; the command is kept
+      // in case the terminal didn't show up.
       if (res.manualCommand) {
         command = res.manualCommand
         reason = res.reason
-        step = 'manual'
+        step = res.terminal ? 'terminal' : 'manual'
       }
     } catch (e) {
       error = errorMessage(e)
@@ -51,6 +53,20 @@
 </script>
 
 <svelte:window onkeydown={onKey} />
+
+{#snippet commandBox()}
+  <div class="flex items-center gap-2 rounded-[10px] border border-line bg-surface px-3 py-2">
+    <code class="grow font-mono text-[12px] break-all select-text">{command}</code>
+    <button
+      class="flex size-8 shrink-0 items-center justify-center rounded-lg border border-line text-muted hover:text-fg"
+      aria-label={t('update.copyCommand')}
+      title={t('update.copyCommand')}
+      onclick={copy}
+    >
+      <Icon name={copied ? 'check' : 'copy'} size={14} />
+    </button>
+  </div>
+{/snippet}
 
 <div class="fixed inset-0 z-50 flex items-center justify-center p-6" transition:fade={{ duration: 150 }}>
   <button
@@ -101,19 +117,17 @@
             class="box-border size-4 animate-[spin_0.9s_linear_infinite] rounded-full border-2 border-accent-soft border-t-accent"
           ></span>{t('update.working')}
         </span>
+      {:else if step === 'terminal'}
+        <span class="flex items-center gap-2.5">
+          <span
+            class="box-border size-4 shrink-0 animate-[spin_0.9s_linear_infinite] rounded-full border-2 border-accent-soft border-t-accent"
+          ></span>{t('update.inTerminal')}
+        </span>
+        <span class="text-xs text-faint">{t('update.inTerminalFallback')}</span>
+        {@render commandBox()}
       {:else if step === 'manual'}
         <span class="text-muted">{t('update.manual')}</span>
-        <div class="flex items-center gap-2 rounded-[10px] border border-line bg-surface px-3 py-2">
-          <code class="grow font-mono text-[12px] break-all select-text">{command}</code>
-          <button
-            class="flex size-8 shrink-0 items-center justify-center rounded-lg border border-line text-muted hover:text-fg"
-            aria-label={t('update.copyCommand')}
-            title={t('update.copyCommand')}
-            onclick={copy}
-          >
-            <Icon name={copied ? 'check' : 'copy'} size={14} />
-          </button>
-        </div>
+        {@render commandBox()}
         {#if reason}<span class="text-xs text-faint">{reason}</span>{/if}
       {:else if step === 'error'}
         <span class="text-prod-fg" role="alert">{error}</span>
@@ -130,8 +144,10 @@
       {#if info.canInstall && (step === 'ready' || step === 'error')}
         <button class="h-[38px] rounded-lg border border-line-strong px-4 text-sm" onclick={onClose}>{t('update.later')}</button>
         <button class="h-[38px] rounded-lg bg-accent px-[18px] text-sm font-semibold text-accent-ink" onclick={install}
-          >{step === 'error' ? t('update.retry') : info.terminalInstall ? t('update.prepare') : t('update.install')}</button
+          >{step === 'error' ? t('update.retry') : t('update.install')}</button
         >
+      {:else if step === 'terminal'}
+        <button class="h-[38px] rounded-lg border border-line-strong px-4 text-sm" onclick={onClose}>{t('update.close')}</button>
       {:else if step !== 'working'}
         <button class="h-[38px] rounded-lg bg-accent px-[18px] text-sm font-semibold text-accent-ink" onclick={() => api.OpenURL(info.url)}
           >{t('update.openPage')}</button

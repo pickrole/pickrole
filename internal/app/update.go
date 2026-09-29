@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/pickrole/pickrole/internal/awsenv"
@@ -38,6 +39,10 @@ type UpdateResult struct {
 	ManualCommand string `json:"manualCommand"`
 	// Reason is why the automatic install didn't work.
 	Reason string `json:"reason"`
+	// Terminal is true when the install runs in a terminal PickRole opened
+	// (pbrun); PickRole restarts when it's done. ManualCommand is still set,
+	// in case the terminal didn't show up.
+	Terminal bool `json:"terminal"`
 }
 
 // Replaced in tests, which must not touch the running executable.
@@ -123,6 +128,7 @@ func (s *Service) ApplyUpdate() (UpdateResult, error) {
 	if !inst.Supported() {
 		return UpdateResult{}, i18n.New("update.none")
 	}
+	inst.ClosePrompt = i18n.T("update.close_terminal")
 	cache, err := os.UserCacheDir()
 	if err != nil {
 		return UpdateResult{}, i18n.Wrap("update.download", err)
@@ -137,6 +143,16 @@ func (s *Service) ApplyUpdate() (UpdateResult, error) {
 	if err := inst.Apply(pkg); err != nil {
 		var manual *update.ManualError
 		if errors.As(err, &manual) {
+			if errors.Is(err, update.ErrTerminalOpened) {
+				s.mu.Lock()
+				s.restartWhenInstalled = true
+				s.mu.Unlock()
+				select {
+				case s.installing <- struct{}{}:
+				default:
+				}
+				return UpdateResult{ManualCommand: manual.Command, Terminal: true}, nil
+			}
 			reason := manual.Error()
 			if errors.Is(err, update.ErrTerminalInstall) {
 				reason = i18n.T("update.pbrun")
@@ -152,4 +168,86 @@ func (s *Service) ApplyUpdate() (UpdateResult, error) {
 		p.Quit()
 	}
 	return UpdateResult{}, nil
+}
+
+// installWatch is what watchInstall watches, or nil. Local builds (version
+// "dev") aren't watched: rebuilding would count. Only Linux needs it: on
+// Windows the update itself restarts PickRole, and the running .exe can't
+// be overwritten.
+func (s *Service) installWatch() *update.Watch {
+	if _, ok := update.ParseVersion(s.build.Version); !ok || runtime.GOOS != "linux" {
+		return nil
+	}
+	return update.NewWatch(detectInstallation().Exe)
+}
+
+// installTiming is how often watchInstall looks at the executable: rarely,
+// since updates are meant to go through PickRole, and often only while an
+// install PickRole started in a terminal is under way.
+type installTiming struct {
+	every time.Duration // normally
+	fast  time.Duration // while the terminal install runs
+	wait  time.Duration // how long an install may take
+}
+
+// Replaced in tests.
+var installTimes = installTiming{every: 3 * time.Hour, fast: 2 * time.Second, wait: 30 * time.Minute}
+
+// watchInstall notices when a new version is installed while PickRole is
+// open: the running process is still the old one. After an update started
+// here (s.installing) it looks every few seconds and restarts as soon as the
+// new version is in place. Otherwise it looks every few hours and the UI
+// offers to restart (event "update-installed").
+func (s *Service) watchInstall(ctx context.Context, w *update.Watch, times installTiming) {
+	var until time.Time
+	t := time.NewTimer(times.every)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-s.installing:
+			until = time.Now().Add(times.wait)
+		case <-t.C:
+		}
+		if !w.Replaced() {
+			next := times.every
+			if time.Now().Before(until) {
+				next = times.fast
+			}
+			t.Reset(next)
+			continue
+		}
+		// Let the package manager finish before starting the new version.
+		time.Sleep(time.Second)
+		s.mu.Lock()
+		auto, p := s.restartWhenInstalled, s.platform
+		s.mu.Unlock()
+		if auto && s.restart(w.Path()) == nil {
+			return
+		}
+		if p != nil {
+			p.Emit("update-installed")
+		}
+		return
+	}
+}
+
+// RestartApp starts the installed version and quits this one: after an
+// update installed while PickRole was open.
+func (s *Service) RestartApp() error {
+	return s.restart(detectInstallation().Exe)
+}
+
+func (s *Service) restart(exe string) error {
+	s.mu.Lock()
+	p := s.platform
+	s.mu.Unlock()
+	if err := relaunch(exe); err != nil {
+		return i18n.Wrap("update.restart", err)
+	}
+	if p != nil {
+		p.Quit()
+	}
+	return nil
 }

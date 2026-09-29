@@ -5,6 +5,17 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- On machines where administrator commands go through `pbrun`, **Update now** opens a terminal running the
+  `pbrun dnf install …` command, so there is nothing to copy, and PickRole restarts into the new version once it's
+  installed. The command is still shown in case no terminal appears.
+
+### Added
+
+- When a new version is installed some other way while PickRole is open, the **About** button gets a dot and About
+  offers **Restart** (checked every few hours; updates are meant to go through PickRole).
+
 ## [0.2.0-beta.9] - 2026-09-28
 
 A documentation-only release, to try updating from inside PickRole.

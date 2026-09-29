@@ -39,6 +39,7 @@ type Backend = {
   About(): Promise<About>
   CheckUpdate(manual: boolean): Promise<UpdateInfo>
   ApplyUpdate(): Promise<UpdateResult>
+  RestartApp(): Promise<void>
 }
 
 declare global {
