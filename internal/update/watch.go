@@ -23,6 +23,9 @@ func NewWatch(path string) *Watch {
 	return &Watch{path: path, info: info}
 }
 
+// Path is the watched executable.
+func (w *Watch) Path() string { return w.path }
+
 // Replaced reports whether the file at the path is no longer the one seen
 // by NewWatch. A package manager writes a new file and renames it over the
 // old one, so it is another file, with another size or time.

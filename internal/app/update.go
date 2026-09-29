@@ -166,6 +166,17 @@ func (s *Service) ApplyUpdate() (UpdateResult, error) {
 	return UpdateResult{}, nil
 }
 
+// installWatch is what watchInstall watches, or nil. Local builds (version
+// "dev") aren't watched: rebuilding would count. Only Linux needs it: on
+// Windows the update itself restarts PickRole, and the running .exe can't
+// be overwritten.
+func (s *Service) installWatch() *update.Watch {
+	if _, ok := update.ParseVersion(s.build.Version); !ok || runtime.GOOS != "linux" {
+		return nil
+	}
+	return update.NewWatch(detectInstallation().Exe)
+}
+
 // installCheckEvery is how often watchInstall looks at the executable.
 var installCheckEvery = 3 * time.Second
 
@@ -173,19 +184,8 @@ var installCheckEvery = 3 * time.Second
 // open (from the terminal PickRole opened, or by hand): the running process
 // is still the old one. After an update started here it restarts right
 // away; otherwise the UI offers to restart (event "update-installed").
-// Local builds (version "dev") aren't watched: rebuilding would count.
-// Only Linux needs it: on Windows the update itself restarts PickRole, and
-// the running .exe can't be overwritten.
-func (s *Service) watchInstall(ctx context.Context) {
-	if _, ok := update.ParseVersion(s.build.Version); !ok || runtime.GOOS != "linux" {
-		return
-	}
-	exe := detectInstallation().Exe
-	w := update.NewWatch(exe)
-	if w == nil {
-		return
-	}
-	t := time.NewTicker(installCheckEvery)
+func (s *Service) watchInstall(ctx context.Context, w *update.Watch, every time.Duration) {
+	t := time.NewTicker(every)
 	defer t.Stop()
 	for {
 		select {
@@ -201,7 +201,7 @@ func (s *Service) watchInstall(ctx context.Context) {
 		s.mu.Lock()
 		auto, p := s.restartWhenInstalled, s.platform
 		s.mu.Unlock()
-		if auto && s.RestartApp() == nil {
+		if auto && s.restart(w.Path()) == nil {
 			return
 		}
 		if p != nil {
@@ -214,10 +214,14 @@ func (s *Service) watchInstall(ctx context.Context) {
 // RestartApp starts the installed version and quits this one: after an
 // update installed while PickRole was open.
 func (s *Service) RestartApp() error {
+	return s.restart(detectInstallation().Exe)
+}
+
+func (s *Service) restart(exe string) error {
 	s.mu.Lock()
 	p := s.platform
 	s.mu.Unlock()
-	if err := relaunch(detectInstallation().Exe); err != nil {
+	if err := relaunch(exe); err != nil {
 		return i18n.Wrap("update.restart", err)
 	}
 	if p != nil {

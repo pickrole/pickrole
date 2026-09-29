@@ -145,7 +145,9 @@ func (s *Service) start(ctx context.Context, p Platform) {
 	s.snapshot, _, _ = store.LoadSnapshot()
 	s.resetClient()
 	go s.renewLoop(ctx)
-	go s.watchInstall(ctx)
+	if w := s.installWatch(); w != nil {
+		go s.watchInstall(ctx, w, installCheckEvery)
+	}
 }
 
 func (s *Service) resetClient() {
