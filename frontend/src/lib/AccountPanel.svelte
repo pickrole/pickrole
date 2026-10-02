@@ -26,11 +26,23 @@
     result: LoadResult | null
     onLoad: (role: string) => void
     onToggleFavorite: () => void
-    onCopy: (text: string) => void
-    onCopyExport: () => void
+    onCopy: (text: string) => Promise<boolean>
+    onCopyExport: () => Promise<boolean>
     /** Copies only `export CODEARTIFACT_AUTH_TOKEN=…`, which works without the AWS_* variables. */
-    onCopyCodeArtifactExport: () => void
+    onCopyCodeArtifactExport: () => Promise<boolean>
   } = $props()
+
+  // Which copy just worked, shown on its button for a moment: nothing else
+  // tells that the clipboard changed.
+  let copied = $state<'id' | 'export' | 'token' | null>(null)
+  let copiedTimer: ReturnType<typeof setTimeout> | undefined
+
+  async function copyWith(which: 'id' | 'export' | 'token', fn: () => Promise<boolean>) {
+    if (!(await fn())) return
+    copied = which
+    clearTimeout(copiedTimer)
+    copiedTimer = setTimeout(() => (copied = null), 1800)
+  }
 
   let confirming = $state<string | null>(null)
 
@@ -78,11 +90,12 @@
     <div class="flex items-center gap-1.5">
       <span class="font-mono text-[12.5px] text-muted">{account.id}</span>
       <button
-        class="flex size-[26px] items-center justify-center rounded-md text-faint hover:text-fg"
-        aria-label={t('account.copyId')}
-        onclick={() => onCopy(account.id)}
+        class="flex size-[26px] items-center justify-center rounded-md {copied === 'id' ? 'text-ok' : 'text-faint hover:text-fg'}"
+        aria-label={copied === 'id' ? t('account.copied') : t('account.copyId')}
+        title={copied === 'id' ? t('account.copied') : t('account.copyId')}
+        onclick={() => copyWith('id', () => onCopy(account.id))}
       >
-        <Icon name="copy" size={13} />
+        <Icon name={copied === 'id' ? 'check' : 'copy'} size={13} />
       </button>
     </div>
   </div>
@@ -161,6 +174,22 @@
     {/each}
   </div>
 
+  {#snippet copyButton(which: 'export' | 'token', label: string, hint: string | undefined, fn: () => Promise<boolean>)}
+    <!-- The label width is kept, so "Copied" doesn't move the other button. -->
+    <button
+      class="grid h-[30px] rounded-[7px] px-2.5 text-[13px] font-medium whitespace-nowrap {copied === which
+        ? 'text-ok'
+        : 'text-accent-soft-fg'}"
+      title={hint}
+      onclick={() => copyWith(which, fn)}
+    >
+      <span class="invisible col-start-1 row-start-1">{label}</span>
+      <span class="col-start-1 row-start-1 flex items-center justify-center gap-1.5" aria-live="polite">
+        {#if copied === which}<Icon name="check" size={13} stroke={2.6} />{t('account.copied')}{:else}{label}{/if}
+      </span>
+    </button>
+  {/snippet}
+
   {#if showResult && result}
     <div class="mt-auto flex flex-col gap-2">
       {#each result.warnings as w (w)}
@@ -174,17 +203,14 @@
           <span class="shrink-0 text-ok"><Icon name="check" size={15} stroke={2.6} /></span>{t('account.done')}
         </span>
         <span class="ml-auto flex shrink-0">
-          <button
-            class="h-[30px] rounded-[7px] px-2.5 text-[13px] font-medium whitespace-nowrap text-accent-soft-fg"
-            title={result.active.codeArtifact ? t('account.copyExportWithToken') : undefined}
-            onclick={onCopyExport}>{t('account.copyExport')}</button
-          >
+          {@render copyButton(
+            'export',
+            t('account.copyExport'),
+            result.active.codeArtifact ? t('account.copyExportWithToken') : undefined,
+            onCopyExport,
+          )}
           {#if result.active.codeArtifact}
-            <button
-              class="h-[30px] rounded-[7px] px-2.5 text-[13px] font-medium whitespace-nowrap text-accent-soft-fg"
-              title={t('account.copyTokenHint')}
-              onclick={onCopyCodeArtifactExport}>{t('account.copyToken')}</button
-            >
+            {@render copyButton('token', t('account.copyToken'), t('account.copyTokenHint'), onCopyCodeArtifactExport)}
           {/if}
         </span>
       </div>

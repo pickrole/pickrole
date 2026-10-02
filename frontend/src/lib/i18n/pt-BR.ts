@@ -79,6 +79,7 @@ export const ptBR: Messages = {
   'account.copyExport': 'Copiar export',
   'account.copyExportWithToken': 'Linhas export das variáveis AWS_* e do CODEARTIFACT_AUTH_TOKEN',
   'account.copyToken': 'Copiar token',
+  'account.copied': 'Copiado',
   'account.copyTokenHint': 'Só export CODEARTIFACT_AUTH_TOKEN=…, para Maven, Gradle, npm ou pip num terminal',
 
   'login.firstRun': 'Primeiro acesso',

@@ -85,6 +85,7 @@ export const en = {
   'account.copyExport': 'Copy export',
   'account.copyExportWithToken': 'Export lines for the AWS_* variables and CODEARTIFACT_AUTH_TOKEN',
   'account.copyToken': 'Copy token',
+  'account.copied': 'Copied',
   'account.copyTokenHint': 'Only export CODEARTIFACT_AUTH_TOKEN=…, for Maven, Gradle, npm or pip in a terminal',
 
   // Login

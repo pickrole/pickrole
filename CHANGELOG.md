@@ -5,6 +5,11 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Copy export**, **Copy token** and the copy button next to the account ID show "Copied" for a moment, so there's
+  no need to paste to know it worked.
+
 ## [0.2.0-beta.13] - 2026-10-02
 
 ### Added

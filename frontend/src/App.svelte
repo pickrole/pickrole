@@ -108,14 +108,17 @@
     }
   })
 
-  async function run(key: string, fn: () => Promise<void>) {
+  /** Runs fn as the one busy action; true when it worked. */
+  async function run(key: string, fn: () => Promise<void>): Promise<boolean> {
     busy = key
     error = ''
     try {
       await fn()
+      return true
     } catch (e) {
       if (isLoginRequired(e)) view = 'login'
       else error = errorMessage(e)
+      return false
     } finally {
       busy = null
     }
