@@ -173,6 +173,16 @@ func ExportLines(creds Credentials, region string) (string, error) {
 	return b.String(), nil
 }
 
+// CodeArtifactExportLine is the `export CODEARTIFACT_AUTH_TOKEN=…` line,
+// the variable AWS's instructions use for Maven, Gradle, npm and pip. The
+// token works on its own, without the AWS_* variables.
+func CodeArtifactExportLine(token string) (string, error) {
+	if token == "" || strings.ContainsAny(token, "\x00\r\n") {
+		return "", i18n.New("awsfiles.invalid_credential", "CODEARTIFACT_AUTH_TOKEN")
+	}
+	return "export CODEARTIFACT_AUTH_TOKEN=" + shellQuote(token) + "\n", nil
+}
+
 // shellQuote wraps s in single quotes for POSIX shells, where nothing inside
 // is interpreted. Each single quote in s closes the quotes, is escaped and
 // reopens them.

@@ -16,6 +16,7 @@
     onToggleFavorite,
     onCopy,
     onCopyExport,
+    onCopyCodeArtifactExport,
   }: {
     account: Account
     active: Active | null
@@ -27,6 +28,8 @@
     onToggleFavorite: () => void
     onCopy: (text: string) => void
     onCopyExport: () => void
+    /** Copies only `export CODEARTIFACT_AUTH_TOKEN=…`, which works without the AWS_* variables. */
+    onCopyCodeArtifactExport: () => void
   } = $props()
 
   let confirming = $state<string | null>(null)
@@ -165,15 +168,25 @@
           <span class="mt-0.5 shrink-0"><Icon name="alert" size={15} /></span>{w}
         </div>
       {/each}
-      <div class="flex items-center gap-2.5 rounded-[10px] border border-line bg-surface px-3.5 py-[11px] text-[13px]">
-        <span class="text-ok"><Icon name="check" size={15} stroke={2.6} /></span>
-        <span class="grow text-muted" title={result.written.join('\n')}
-          >{t('account.done')}</span
-        >
-        <button
-          class="h-[30px] shrink-0 rounded-[7px] px-2.5 text-[13px] font-medium whitespace-nowrap text-accent-soft-fg"
-          onclick={onCopyExport}>{t('account.copyExport')}</button
-        >
+      <!-- The buttons move to a line of their own when the window is narrow. -->
+      <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-[10px] border border-line bg-surface px-3.5 py-[11px] text-[13px]">
+        <span class="flex grow basis-[13rem] items-center gap-2.5 text-muted" title={result.written.join('\n')}>
+          <span class="shrink-0 text-ok"><Icon name="check" size={15} stroke={2.6} /></span>{t('account.done')}
+        </span>
+        <span class="ml-auto flex shrink-0">
+          <button
+            class="h-[30px] rounded-[7px] px-2.5 text-[13px] font-medium whitespace-nowrap text-accent-soft-fg"
+            title={result.active.codeArtifact ? t('account.copyExportWithToken') : undefined}
+            onclick={onCopyExport}>{t('account.copyExport')}</button
+          >
+          {#if result.active.codeArtifact}
+            <button
+              class="h-[30px] rounded-[7px] px-2.5 text-[13px] font-medium whitespace-nowrap text-accent-soft-fg"
+              title={t('account.copyTokenHint')}
+              onclick={onCopyCodeArtifactExport}>{t('account.copyToken')}</button
+            >
+          {/if}
+        </span>
       </div>
     </div>
   {/if}

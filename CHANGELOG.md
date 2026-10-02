@@ -5,6 +5,17 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Copy export** also includes `export CODEARTIFACT_AUTH_TOKEN=…` when the profile has CodeArtifact access, and
+  **Copy token** copies only that line, for Maven, Gradle, npm or pip in a terminal (the token works without the
+  `AWS_*` variables). On Windows the copy stays out of the clipboard history, like the credentials.
+
+### Fixed
+
+- The `Ctrl K` and `Esc` hints in the account list no longer break into two lines with wider fonts (Linux), and the
+  list is a little wider.
+
 ## [0.2.0-beta.12] - 2026-09-29
 
 ### Added

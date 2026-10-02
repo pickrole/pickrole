@@ -130,6 +130,16 @@ func TestFullFlowAgainstFakeAWS(t *testing.T) {
 		}
 	}
 
+	// The export carries the CodeArtifact token too, and it can be copied alone.
+	if err := svc.CopyExport(); err != nil || !strings.Contains(p.clipboard, "export AWS_SESSION_TOKEN=") ||
+		!strings.Contains(p.clipboard, "export CODEARTIFACT_AUTH_TOKEN='fakecodeartifact") {
+		t.Errorf("export with CodeArtifact = %q, %v", p.clipboard, err)
+	}
+	if err := svc.CopyCodeArtifactExport(); err != nil || !strings.HasPrefix(p.clipboard, "export CODEARTIFACT_AUTH_TOKEN='fakecodeartifact") ||
+		strings.Contains(p.clipboard, "AWS_") || strings.Count(p.clipboard, "\n") != 1 {
+		t.Errorf("CodeArtifact export = %q, %v", p.clipboard, err)
+	}
+
 	// A role without CodeArtifact: AccessDenied is expected, not a warning.
 	res, err = svc.LoadProfile("111111111111", "ReadOnly")
 	if err != nil {
@@ -137,6 +147,13 @@ func TestFullFlowAgainstFakeAWS(t *testing.T) {
 	}
 	if len(res.Warnings) != 0 || res.Active.CodeArtifact {
 		t.Errorf("ReadOnly: warnings=%v codeArtifact=%v", res.Warnings, res.Active.CodeArtifact)
+	}
+	// Without access, no stale token from the previous profile.
+	if err := svc.CopyExport(); err != nil || strings.Contains(p.clipboard, "CODEARTIFACT") {
+		t.Errorf("export without CodeArtifact = %q, %v", p.clipboard, err)
+	}
+	if err := svc.CopyCodeArtifactExport(); err == nil {
+		t.Error("copying the CodeArtifact token without access should fail")
 	}
 	access := svc.Overview().CodeArtifactAccess
 	if !access["111111111111/Developer"] || access["111111111111/ReadOnly"] {
