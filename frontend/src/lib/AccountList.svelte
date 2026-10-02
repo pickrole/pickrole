@@ -47,7 +47,7 @@
 
 <svelte:window onkeydown={onKey} />
 
-<aside class="flex w-[290px] shrink-0 flex-col gap-3 border-r border-line p-3">
+<aside class="flex w-[300px] shrink-0 flex-col gap-3 border-r border-line p-3">
   <label
     class="relative flex h-[38px] shrink-0 items-center gap-2 rounded-[9px] border border-line bg-surface px-2.5 text-faint focus-within:border-accent-line"
   >
@@ -61,7 +61,7 @@
       placeholder={t('accounts.searchPlaceholder')}
       class="min-w-0 grow bg-transparent text-[13.5px] text-fg outline-none placeholder:text-faint"
     />
-    <span class="rounded-[5px] border border-line px-[5px] py-[2px] font-mono text-[10.5px]">Ctrl K</span>
+    <span class="shrink-0 rounded-[5px] border border-line px-[5px] py-[2px] font-mono text-[10.5px] whitespace-nowrap">Ctrl K</span>
   </label>
 
   <button
@@ -73,7 +73,7 @@
   >
     <Icon name="home" size={15} />
     <span class="grow">{t('accounts.home')}</span>
-    <span class="rounded-[5px] border border-line px-[5px] py-[2px] font-mono text-[10.5px] font-normal text-faint">Esc</span>
+    <span class="shrink-0 rounded-[5px] border border-line px-[5px] py-[2px] font-mono text-[10.5px] font-normal whitespace-nowrap text-faint">Esc</span>
   </button>
 
   <div class="-mr-1 flex min-h-0 grow flex-col gap-4 overflow-y-auto pr-1">
