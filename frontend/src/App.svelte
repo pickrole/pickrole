@@ -180,9 +180,9 @@
       await api.CopyExport()
     })
 
-  const copyCodeArtifactExport = () =>
+  const copyCodeArtifactToken = () =>
     run('copy', async () => {
-      await api.CopyCodeArtifactExport()
+      await api.CopyCodeArtifactToken()
     })
 
   function onKey(e: KeyboardEvent) {
@@ -275,7 +275,7 @@
                 onToggleFavorite={() => toggleFavorite(selected.id)}
                 onCopy={copy}
                 onCopyExport={copyExport}
-                onCopyCodeArtifactExport={copyCodeArtifactExport}
+                onCopyCodeArtifactToken={copyCodeArtifactToken}
               />
             {/key}
           {:else}

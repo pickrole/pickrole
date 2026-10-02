@@ -7,8 +7,10 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- **Copy export**, **Copy token** and the copy button next to the account ID show "Copied" for a moment, so there's
-  no need to paste to know it worked.
+- **Copy token** is now **Copy CodeArtifact token** and copies the token alone, without `export`; **Copy export**
+  still includes the `export CODEARTIFACT_AUTH_TOKEN=…` line.
+- **Copy export**, **Copy CodeArtifact token** and the copy button next to the account ID show "Copied" for a moment,
+  so there's no need to paste to know it worked.
 
 ## [0.2.0-beta.13] - 2026-10-02
 

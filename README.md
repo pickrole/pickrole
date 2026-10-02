@@ -203,8 +203,9 @@ For safety, `settings.xml` must be inside your home folder (no network paths, no
 written readable only by you, since it now holds the token.
 
 Other tools (Gradle, npm, pip, scripts) read `CODEARTIFACT_AUTH_TOKEN` from the environment, which PickRole can't set
-in terminals that are already open. For those, **Copy token** next to the loaded profile copies
-`export CODEARTIFACT_AUTH_TOKEN=…` to paste in a terminal; **Copy export** includes it with the `AWS_*` variables.
+in terminals that are already open. For those, **Copy export** next to the loaded profile copies the `export` lines for
+the `AWS_*` variables and `CODEARTIFACT_AUTH_TOKEN`, to paste in a terminal; **Copy CodeArtifact token** copies the
+token alone.
 
 ## Documentation
 

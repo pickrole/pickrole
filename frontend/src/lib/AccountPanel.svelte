@@ -16,7 +16,7 @@
     onToggleFavorite,
     onCopy,
     onCopyExport,
-    onCopyCodeArtifactExport,
+    onCopyCodeArtifactToken,
   }: {
     account: Account
     active: Active | null
@@ -28,8 +28,8 @@
     onToggleFavorite: () => void
     onCopy: (text: string) => Promise<boolean>
     onCopyExport: () => Promise<boolean>
-    /** Copies only `export CODEARTIFACT_AUTH_TOKEN=…`, which works without the AWS_* variables. */
-    onCopyCodeArtifactExport: () => Promise<boolean>
+    /** Copies only the CodeArtifact token, with nothing around it. */
+    onCopyCodeArtifactToken: () => Promise<boolean>
   } = $props()
 
   // Which copy just worked, shown on its button for a moment: nothing else
@@ -210,7 +210,7 @@
             onCopyExport,
           )}
           {#if result.active.codeArtifact}
-            {@render copyButton('token', t('account.copyToken'), t('account.copyTokenHint'), onCopyCodeArtifactExport)}
+            {@render copyButton('token', t('account.copyToken'), t('account.copyTokenHint'), onCopyCodeArtifactToken)}
           {/if}
         </span>
       </div>
