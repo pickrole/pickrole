@@ -177,6 +177,11 @@
       await api.CopyExport()
     })
 
+  const copyCodeArtifactExport = () =>
+    run('copy', async () => {
+      await api.CopyCodeArtifactExport()
+    })
+
   function onKey(e: KeyboardEvent) {
     if (e.key === 'Escape' && !showAbout && view === 'main' && (e.target as HTMLElement).tagName !== 'INPUT') selectedId = null
   }
@@ -267,6 +272,7 @@
                 onToggleFavorite={() => toggleFavorite(selected.id)}
                 onCopy={copy}
                 onCopyExport={copyExport}
+                onCopyCodeArtifactExport={copyCodeArtifactExport}
               />
             {/key}
           {:else}

@@ -108,7 +108,10 @@ type Service struct {
 	state      store.State
 	snapshot   store.Snapshot
 	lastCreds  *awsfiles.Credentials
-	pending    *sso.DeviceAuth
+	// lastToken is the CodeArtifact token of the loaded profile, or "" when
+	// it has no access (or CodeArtifact is off).
+	lastToken string
+	pending   *sso.DeviceAuth
 
 	// renewing keeps two renewals from running at once; renewErr is the
 	// last background error shown, so it isn't repeated every minute.
@@ -586,6 +589,7 @@ func (s *Service) loadProfile(accountID, role string, used bool) (LoadResult, er
 	}
 
 	hasAccess, noAccess := true, false
+	token := ""
 	var access *bool // nil when CodeArtifact is off or the check failed
 
 	if ca := cfg.CodeArtifact; ca.Enabled {
@@ -598,6 +602,7 @@ func (s *Service) loadProfile(accountID, role string, used bool) (LoadResult, er
 			res.Warnings = append(res.Warnings, err.Error())
 		default:
 			access = &hasAccess
+			token = tok.Value
 			res.Active.CodeArtifact = true
 			res.Active.CodeArtifactExpiresAt = tok.ExpiresAt
 			if m := ca.Tools.Maven; m.Enabled {
@@ -614,7 +619,7 @@ func (s *Service) loadProfile(accountID, role string, used bool) (LoadResult, er
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.lastCreds = &creds
+	s.lastCreds, s.lastToken = &creds, token
 	active := res.Active
 	s.state.Active = &active
 	if access != nil {
@@ -651,10 +656,11 @@ func (s *Service) CopyText(text string) error {
 }
 
 // CopyExport puts `export AWS_…` lines for the loaded profile on the
-// clipboard, for the rare terminal that needs environment variables.
+// clipboard, for the rare terminal that needs environment variables, with
+// CODEARTIFACT_AUTH_TOKEN when the profile has CodeArtifact access.
 func (s *Service) CopyExport() error {
 	s.mu.Lock()
-	creds := s.lastCreds
+	creds, token := s.lastCreds, s.lastToken
 	s.mu.Unlock()
 	if creds == nil {
 		return i18n.New("app.load_profile_first")
@@ -663,5 +669,28 @@ func (s *Service) CopyExport() error {
 	if err != nil {
 		return err
 	}
+	if token != "" {
+		line, err := awsfiles.CodeArtifactExportLine(token)
+		if err != nil {
+			return err
+		}
+		lines += line
+	}
 	return s.platform.SetSecretClipboard(lines)
+}
+
+// CopyCodeArtifactExport puts only the `export CODEARTIFACT_AUTH_TOKEN=…`
+// line on the clipboard: the token works without the AWS_* variables.
+func (s *Service) CopyCodeArtifactExport() error {
+	s.mu.Lock()
+	token := s.lastToken
+	s.mu.Unlock()
+	if token == "" {
+		return i18n.New("app.no_codeartifact_token")
+	}
+	line, err := awsfiles.CodeArtifactExportLine(token)
+	if err != nil {
+		return err
+	}
+	return s.platform.SetSecretClipboard(line)
 }

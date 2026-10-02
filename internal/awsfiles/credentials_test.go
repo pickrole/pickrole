@@ -115,6 +115,18 @@ func TestUpsertProfileRejectsInjectedValues(t *testing.T) {
 
 // The export lines are pasted into a shell: values are quoted, and anything
 // that isn't a valid credential is refused instead of copied.
+func TestCodeArtifactExportLine(t *testing.T) {
+	got, err := CodeArtifactExportLine("eyJ2Ijox.it's")
+	if err != nil || got != "export CODEARTIFACT_AUTH_TOKEN='eyJ2Ijox.it'\\''s'\n" {
+		t.Errorf("got %q, %v", got, err)
+	}
+	for _, bad := range []string{"", "tok\nrm -rf ~", "tok\r", "tok\x00"} {
+		if _, err := CodeArtifactExportLine(bad); err == nil {
+			t.Errorf("%q should be refused", bad)
+		}
+	}
+}
+
 func TestExportLines(t *testing.T) {
 	creds := Credentials{AccessKeyID: "ASIAEXAMPLE", SecretAccessKey: "abc/def+ghi=", SessionToken: "tok=="}
 	got, err := ExportLines(creds, "sa-east-1")

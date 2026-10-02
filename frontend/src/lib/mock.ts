@@ -156,6 +156,7 @@ export const mock = {
     await navigator.clipboard?.writeText(text)
   },
   async CopyExport() {},
+  async CopyCodeArtifactExport() {},
   async SetLanguage(_lang: string) {},
   async CheckUpdate(_manual: boolean): Promise<UpdateInfo> {
     await wait(600)

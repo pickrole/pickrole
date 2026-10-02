@@ -42,7 +42,7 @@ already require control of the user's account on the machine.
 
 ## Known limitations
 
-- On Linux, copying credentials ("Copy export") is a plain copy: a clipboard manager may keep it.
+- On Linux, copying credentials ("Copy export", "Copy token") is a plain copy: a clipboard manager may keep it.
 - On Windows, `0600` doesn't change the file's ACL, which is inherited from the home folder (by default only the owner
   can read it).
 - The binaries aren't signed (Authenticode on Windows, GPG for the RPM). Check downloads against the release's
