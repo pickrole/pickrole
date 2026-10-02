@@ -135,9 +135,11 @@ func TestFullFlowAgainstFakeAWS(t *testing.T) {
 		!strings.Contains(p.clipboard, "export CODEARTIFACT_AUTH_TOKEN='fakecodeartifact") {
 		t.Errorf("export with CodeArtifact = %q, %v", p.clipboard, err)
 	}
-	if err := svc.CopyCodeArtifactExport(); err != nil || !strings.HasPrefix(p.clipboard, "export CODEARTIFACT_AUTH_TOKEN='fakecodeartifact") ||
-		strings.Contains(p.clipboard, "AWS_") || strings.Count(p.clipboard, "\n") != 1 {
-		t.Errorf("CodeArtifact export = %q, %v", p.clipboard, err)
+	// Copy CodeArtifact token: the token alone, the same one as in the export.
+	export := p.clipboard
+	if err := svc.CopyCodeArtifactToken(); err != nil || !strings.HasPrefix(p.clipboard, "fakecodeartifact") ||
+		strings.ContainsAny(p.clipboard, " '\n=") || !strings.Contains(export, "'"+p.clipboard+"'") {
+		t.Errorf("CodeArtifact token = %q, %v", p.clipboard, err)
 	}
 
 	// A role without CodeArtifact: AccessDenied is expected, not a warning.
@@ -152,7 +154,7 @@ func TestFullFlowAgainstFakeAWS(t *testing.T) {
 	if err := svc.CopyExport(); err != nil || strings.Contains(p.clipboard, "CODEARTIFACT") {
 		t.Errorf("export without CodeArtifact = %q, %v", p.clipboard, err)
 	}
-	if err := svc.CopyCodeArtifactExport(); err == nil {
+	if err := svc.CopyCodeArtifactToken(); err == nil {
 		t.Error("copying the CodeArtifact token without access should fail")
 	}
 	access := svc.Overview().CodeArtifactAccess

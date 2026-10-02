@@ -35,7 +35,7 @@ type Backend = {
   ToggleFavorite(accountId: string): Promise<Overview>
   CopyText(text: string): Promise<void>
   CopyExport(): Promise<void>
-  CopyCodeArtifactExport(): Promise<void>
+  CopyCodeArtifactToken(): Promise<void>
   SetLanguage(lang: string): Promise<void>
   About(): Promise<About>
   CheckUpdate(manual: boolean): Promise<UpdateInfo>

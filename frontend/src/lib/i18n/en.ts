@@ -84,8 +84,9 @@ export const en = {
   'account.done': 'Done. Every terminal now uses these credentials.',
   'account.copyExport': 'Copy export',
   'account.copyExportWithToken': 'Export lines for the AWS_* variables and CODEARTIFACT_AUTH_TOKEN',
-  'account.copyToken': 'Copy token',
-  'account.copyTokenHint': 'Only export CODEARTIFACT_AUTH_TOKEN=…, for Maven, Gradle, npm or pip in a terminal',
+  'account.copyToken': 'Copy CodeArtifact token',
+  'account.copied': 'Copied',
+  'account.copyTokenHint': 'Only the token, without export: for a form, a config file or a variable',
 
   // Login
   'login.firstRun': 'First sign-in',

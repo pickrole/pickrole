@@ -78,8 +78,9 @@ export const ptBR: Messages = {
   'account.done': 'Pronto. Qualquer terminal já usa estas credenciais.',
   'account.copyExport': 'Copiar export',
   'account.copyExportWithToken': 'Linhas export das variáveis AWS_* e do CODEARTIFACT_AUTH_TOKEN',
-  'account.copyToken': 'Copiar token',
-  'account.copyTokenHint': 'Só export CODEARTIFACT_AUTH_TOKEN=…, para Maven, Gradle, npm ou pip num terminal',
+  'account.copyToken': 'Copiar token CodeArtifact',
+  'account.copied': 'Copiado',
+  'account.copyTokenHint': 'Só o token, sem export: para um formulário, um arquivo de configuração ou uma variável',
 
   'login.firstRun': 'Primeiro acesso',
   'login.again': 'Entrar novamente',

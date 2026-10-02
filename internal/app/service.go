@@ -679,18 +679,19 @@ func (s *Service) CopyExport() error {
 	return s.platform.SetSecretClipboard(lines)
 }
 
-// CopyCodeArtifactExport puts only the `export CODEARTIFACT_AUTH_TOKEN=…`
-// line on the clipboard: the token works without the AWS_* variables.
-func (s *Service) CopyCodeArtifactExport() error {
+// CopyCodeArtifactToken puts only the CodeArtifact token on the clipboard,
+// with nothing around it, for wherever it's pasted (a form, a config file,
+// a variable). Copy export has the `export CODEARTIFACT_AUTH_TOKEN=…` line.
+func (s *Service) CopyCodeArtifactToken() error {
 	s.mu.Lock()
 	token := s.lastToken
 	s.mu.Unlock()
 	if token == "" {
 		return i18n.New("app.no_codeartifact_token")
 	}
-	line, err := awsfiles.CodeArtifactExportLine(token)
-	if err != nil {
+	// The same check as the export line: one line, no control characters.
+	if _, err := awsfiles.CodeArtifactExportLine(token); err != nil {
 		return err
 	}
-	return s.platform.SetSecretClipboard(line)
+	return s.platform.SetSecretClipboard(token)
 }

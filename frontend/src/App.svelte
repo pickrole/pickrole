@@ -108,14 +108,17 @@
     }
   })
 
-  async function run(key: string, fn: () => Promise<void>) {
+  /** Runs fn as the one busy action; true when it worked. */
+  async function run(key: string, fn: () => Promise<void>): Promise<boolean> {
     busy = key
     error = ''
     try {
       await fn()
+      return true
     } catch (e) {
       if (isLoginRequired(e)) view = 'login'
       else error = errorMessage(e)
+      return false
     } finally {
       busy = null
     }
@@ -177,9 +180,9 @@
       await api.CopyExport()
     })
 
-  const copyCodeArtifactExport = () =>
+  const copyCodeArtifactToken = () =>
     run('copy', async () => {
-      await api.CopyCodeArtifactExport()
+      await api.CopyCodeArtifactToken()
     })
 
   function onKey(e: KeyboardEvent) {
@@ -272,7 +275,7 @@
                 onToggleFavorite={() => toggleFavorite(selected.id)}
                 onCopy={copy}
                 onCopyExport={copyExport}
-                onCopyCodeArtifactExport={copyCodeArtifactExport}
+                onCopyCodeArtifactToken={copyCodeArtifactToken}
               />
             {/key}
           {:else}

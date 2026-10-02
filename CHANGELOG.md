@@ -5,6 +5,15 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0-beta.14] - 2026-10-02
+
+### Changed
+
+- **Copy token** is now **Copy CodeArtifact token** and copies the token alone, without `export`; **Copy export**
+  still includes the `export CODEARTIFACT_AUTH_TOKEN=…` line.
+- **Copy export**, **Copy CodeArtifact token** and the copy button next to the account ID show "Copied" for a moment,
+  so there's no need to paste to know it worked.
+
 ## [0.2.0-beta.13] - 2026-10-02
 
 ### Added
@@ -211,7 +220,8 @@ First release, published before this repository became public.
 - On Linux, the GNOME proxy settings aren't read: use `HTTPS_PROXY`.
 - The binaries aren't signed.
 
-[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.13...HEAD
+[Unreleased]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.14...HEAD
+[0.2.0-beta.14]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.13...v0.2.0-beta.14
 [0.2.0-beta.13]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.12...v0.2.0-beta.13
 [0.2.0-beta.12]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.11...v0.2.0-beta.12
 [0.2.0-beta.11]: https://github.com/pickrole/pickrole/compare/v0.2.0-beta.10...v0.2.0-beta.11
